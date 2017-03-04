@@ -24,4 +24,9 @@ export class HomeComponent {
   constructor(private productService: ProductService) {
     this.products = this.productService.getAll();
   }
+
+  onTabChange(tabIndex: number) {
+    const category = this.categories[tabIndex];
+    this.products = this.productService.getCategory(category);
+  }
 }

@@ -666,3 +666,52 @@ Now the home page in a web browser should look like this:
 +
 .Category tabs on the home page
 image::fig_09.png[Category tabs on the home page,933,role="thumb"]
+
+=== Making category tabs interactive
+
+. Add `getCategory()` method to the `ProductService` class:
++
+[source, js]
+----
+@Injectable()
+export class ProductService {
+  // Rest of the class definition...
+
+  getCategory(category: string): Observable<Product[]> {
+    return this.http.get(`/data/products/${category}.json`)
+      .map(resp => resp.json());
+  }
+}
+----
+
+. In `HomeComponent`{nbsp}'s template add event binding for the `selectedIndexChange` event:
++
+[source, js]
+----
+<md-tab-group (selectedIndexChange)="onTabChange($event)"> <!--1-->
+----
+<1> `$event` variable carries the index number of currently activated tab.
+
+. Implement `onTabChange()` method in `HomeComponent`:
++
+[source, js]
+----
+@Component({...})
+export class HomeComponent {
+  // Rest of the class definition...
+
+  onTabChange(tabIndex: number) {
+    const category = this.categories[tabIndex];
+    this.products = this.productService.getCategory(category);
+  }
+}
+----
++
+// TODO: Add "to make sure" step.
+
+. Commit the changes to save the progress:
++
+[source, sh]
+----
+$ git add -A && git commit -m "Make categories tabs interactive"
+----
