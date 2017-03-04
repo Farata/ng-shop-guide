@@ -22,7 +22,7 @@ $ ng set --global packageManager=yarn
 +
 [source, sh]
 ----
-$ ng new ng-shop --prefix ngs
+$ ng new ng-shop --prefix ngs --style scss
 ----
 
 . Add Angular Material to the project with one of the two following commands:
@@ -83,11 +83,11 @@ $ git add -A && git commit -m "Add Angular Material package"
 $ mkdir src/styles
 ----
 
-. Move _src/styles.css_ file to the just created directory and rename it to have _scss_ extension. :
+. Move _src/styles.css_ file to the just created directory:
 +
 [source, sh]
 ----
-$ mv src/styles.css src/styles/styles.scss # Moves and renames simultaneously
+$ mv src/styles.scss src/styles/styles.scss
 ----
 
 . Create __palette.scss_ and _theme.scss_ files in the _src/styles_ folder:
@@ -177,7 +177,89 @@ styles: [
 .Toolbar with cyan background
 image::fig_02.png[Toolbar with cyan background,417,role="thumb"]
 +
-You may remove `color="primary"` now since the background color of the toolbar in our application will be white.
+Remove `color="primary"` now since the background color of the toolbar in our application will be white.
+
+. Now let's add the permanent version of toolbar that we'll be using in the app. First, copy _ngshop-logo.svg_ image from the handouts to the _src/assets_ folder:
++
+[source, sh]
+----
+$ cp {path-to-handouts}/ngshop-logo.svg src/assets
+----
+
+. Replace content of the _src/app/app.component.ts_ with the following code:
++
+[source, js]
+----
+import { Component } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MdIconRegistry } from '@angular/material';
+
+@Component({
+  selector: 'ngs-app',
+  styleUrls: [ './app.component.scss' ],
+  templateUrl: './app.component.html',
+})
+export class AppComponent {
+
+  constructor(
+      private domSanitizer: DomSanitizer,
+      private iconRegistry: MdIconRegistry) {
+    this.registerIcons(new Map<string, string>([
+      [ 'logo', 'assets/ngshop-logo.svg' ]
+    ]));
+  }
+
+  private registerIcons(icons: Map<string, string>) {
+    icons.forEach((url, id) => {
+      const safeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+      this.iconRegistry.addSvgIconInNamespace('ngs', id, safeUrl);
+    });
+  }
+}
+----
+
+. Replace content of the _src/app/app.component.html_ file with the following HTML markup:
++
+[source, html]
+----
+<md-toolbar>
+  <span class="fill"></span>
+  <a routerLink="/">
+    <md-icon class="logo" svgIcon="ngs:logo"></md-icon>
+  </a>
+  <span class="fill"></span>
+</md-toolbar>
+----
+
+. Replace content of the _src/app/app.component.scss_ files with following styles:
++
+[source, sass]
+----
+@import '../styles/palette';
+
+md-toolbar {
+  background: mat-color($ngs-background, card);
+
+  // This adds a bottom border. On the home page the tabs are rendered on top of the
+  // shadow this makes the header look like a single component. On other pages, the
+  // shadow is visible, so it separates header from the content.
+  box-shadow: 0 1px mat-color($ngs-foreground, divider);
+}
+
+.fill {
+  flex: 1 1 auto;
+}
+
+.logo {
+  height: 36px;
+  width: auto;
+}
+----
++
+After applying the changes to the `AppComponent` the application should look like this in a web browser:
++
+.Complete toolbar
+image::fig_03.png[Complete toolbar,489,role="thumb"]
 
 . Commit the changes to save the progress:
 +
@@ -236,7 +318,7 @@ $ ng generate service shared/services/product --spec false # <1>
 Here is the command's output:
 +
 .Generate service command output
-image::fig_03.png[Generate service command output,878,role="thumb"]
+image::fig_04.png[Generate service command output,878,role="thumb"]
 
 . Create _index.ts_ file in the _src/app/shared/services/product_ folder, put following code in there:
 +
@@ -299,9 +381,13 @@ import { ProductService } from './shared/services';
 
 @Component({...})
 export class AppComponent {
-  constructor(productService: ProductService) {
+  constructor(
+      private domSanitizer: DomSanitizer,
+      private iconRegistry: MdIconRegistry,
+      productService: ProductService) {
     productService.getAll()                            // <1>
         .subscribe(products => console.log(products)); // <2>
+    // Rest of the constructor's code...
   }
 }
 ----
@@ -310,7 +396,7 @@ export class AppComponent {
 +
 Launch the development web server, open the application in a web browser and take a look at the dev console, you should see an array of product objects printed there.
 +
-Remove the code added on this step into `AppComponent` since it won't be responsible for displaying products.
+Remove `ProductService` from `AppComponent` since it won't be responsible for displaying products.
 
 . Commit the changes to save the progress:
 +
@@ -318,3 +404,5 @@ Remove the code added on this step into `AppComponent` since it won't be respons
 ----
 $ git add -A && git commit -m "Add initial version of ProductService"
 ----
+
+== Implementing the Home page
