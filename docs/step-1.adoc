@@ -1,4 +1,8 @@
 = NgShop. Step 1. Home Page.
+:icons: font
+:imagesdir: step-1
+
+== Bootstrapping the project
 
 . _Optionally._ If you have yarn installed, specify it as the default Angular CLI package manager
 +
@@ -13,3 +17,54 @@ ng set --global packageManager=yarn
 ----
 ng new ng-shop
 ----
+
+. Add Angular Material to the project with one of the two following commands:
++
+[source, sh]
+----
+# EITHER with yarn:
+$ yarn add @angular/material -E           # <1>
+# OR with npm:
+$ npm install @angular/material --save -E # <1>
+----
+<1> `-E` denotes _exact_ version of the package with no http://semver.org/[semver] range operators applied.
+
+. Add a prebuilt Angular Material theme to the _src/styles.css_ file:
++
+[source, css]
+----
+@import '~@angular/material/core/theming/prebuilt/indigo-pink.css';
+----
+
+. Add `MaterialModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { MaterialModule } from '@angular/material'; // <1>
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    MaterialModule // <2>
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
+
+. Add the toolbar component in _src/app/app.component.html_:
+
+. Launch the development server with `ng serve` command and open the app in a Web browser to make sure Angular Material is properly configured. You should be able to see a page with a default grey toolbar with the NgShop text aligned on the left:
++
+.Angular Material Toolbar
+image::fig_01.png[Toolbar,361,203,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, sh]
+----
+
+----
+
+== Configuring custom Angular Material theme
