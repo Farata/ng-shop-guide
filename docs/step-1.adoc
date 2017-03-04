@@ -1,6 +1,13 @@
 = NgShop. Step 1. Home Page.
+:experimental:
 :icons: font
+:idprefix:
+:idseparator: -
 :imagesdir: step-1
+:sectanchors:
+:sectlinks:
+:sectnums:
+:toc:
 
 == Bootstrapping the project
 
@@ -15,7 +22,7 @@ ng set --global packageManager=yarn
 +
 [source, sh]
 ----
-ng new ng-shop
+ng new ng-shop --prefix ngs
 ----
 
 . Add Angular Material to the project with one of the two following commands:
@@ -64,7 +71,110 @@ image::fig_01.png[Toolbar,361,203,role="thumb"]
 +
 [source, sh]
 ----
-
+$ git add -A && git commit -m "Add Angular Material package"
 ----
 
 == Configuring custom Angular Material theme
+
+. Create the directory _src/styles_:
++
+[source, sh]
+----
+$ mkdir src/styles
+----
+
+. Move _src/styles.css_ file to the just created directory and rename it to have _scss_ extension. :
++
+[source, sh]
+----
+$ mv src/styles.css src/styles/styles.scss # Moves and renames simultaneously
+----
+
+. Create __palette.scss_ and _theme.scss_ files in the _src/styles_ folder:
++
+[source, sh]
+----
+$ touch src/styles/_palette.scss
+$ touch src/styles/theme.scss
+----
+
+. Put the styles below to the __palette.scss_ file:
++
+[source, sass]
+----
+@import '~@angular/material/core/theming/theming';
+
+// Define the palettes for your theme using the Material Design palettes
+// available in palette.scss (imported above). For each palette, you can
+// optionally specify a default, lighter, and darker hue.
+$ngs-primary: mat-palette($mat-cyan);
+$ngs-accent:  mat-palette($mat-cyan, A200, A100, A400);
+$ngs-warn:    mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$ngs-theme: mat-light-theme($ngs-primary, $ngs-accent, $ngs-warn);
+
+$ngs-background: map-get($ngs-theme, background);
+$ngs-foreground: map-get($ngs-theme, foreground);
+
+$ngs-brand-font: 'Abril Fatface', cursive;
+----
+
+. Put the styles below to the _theme.scss_ file:
++
+[source, sass]
+----
+@import url('https://fonts.googleapis.com/css?family=Abril+Fatface');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import '~@angular/material/core/theming/all-theme';
+@import './palette';
+
+// Include the base styles for Angular Material core. We include this here so
+// that you only have to load a single CSS file for Angular Material in your app.
+@include mat-core();
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($ngs-theme);
+
+md-ink-bar {
+  background-color: mat-color($ngs-accent);
+}
+
+body {
+  color: mat-color($ngs-foreground, text);
+  font-family: $mat-font-family;
+  font-size: rem(1.4);
+}
+----
+
+. Replace content of the __styles.scss__ file:
++
+[source, css]
+----
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+----
+
+. Change value of the `apps[0].styles` array in the _.angular-cli.json_ file, it should list _styles.scss_ and _theme.scss_ files:
++
+[source, json]
+----
+styles: [
+  "styles/styles.scss",
+  "styles/theme.scss"
+]
+----
+
+. Restart development web server with kbd:[Ctrl+C] and `ng serve` to apply changes in _.angular-cli.json_ file.
+
+. To make sure the theme is properly configured try to set attribute `color="primary"` for the `<md-toolbar>` element in the _src/app/app.component.html_ file. Open the app in a web browser you should see the toolbar with cyan background:
++
+.Toolbar with cyan background
+image::fig_02.png[Toolbar with cyan background,417,role="thumb"]
++
+You may remove `color="primary"` now since the background color of the toolbar in our application will be white.
