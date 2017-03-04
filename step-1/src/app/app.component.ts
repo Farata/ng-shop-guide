@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
+import { ProductService } from './shared/services';
 
 @Component({
   selector: 'ngs-app',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: [ './app.component.css' ],
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
-  title = 'app works!';
+  constructor(productService: ProductService) {
+    productService.getAll().subscribe(products => console.log(products));
+  }
 }

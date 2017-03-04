@@ -1,0 +1,24 @@
+import { Injectable } from '@angular/core';
+import { Http } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+
+@Injectable()
+export class ProductService {
+
+  constructor(private http: Http) {}
+
+  getAll(): Observable<Product[]> {
+    return this.http.get('/data/products/all.json')
+      .map(resp => resp.json());
+  }
+}
+
+export interface Product {
+  description: string;
+  featured: boolean;
+  imageUrl: string;
+  price: number;
+  title: string;
+  id: string;
+}

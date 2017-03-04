@@ -45,7 +45,7 @@ $ npm install @angular/material --save -E # <1>
 
 . Add `MaterialModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
 +
-[source, ts]
+[source, js]
 ----
 import { MaterialModule } from '@angular/material'; // <1>
 
@@ -186,7 +186,7 @@ You may remove `color="primary"` now since the background color of the toolbar i
 $ git add -A && git commit -m "Add custom Angular Material theme"
 ----
 
-== Add static NgShop data
+== Adding static NgShop data
 
 . Copy _data_ directory from the class handouts to the _src_ directory of NgShop project:
 +
@@ -213,4 +213,108 @@ $ cp -r {path-to-handouts}/data src
 [source, sh]
 ----
 $ git add -A && git commit -m "Add static NgShop data"
+----
+
+== Implementing ProductService
+
+. Create _src/app/shared/services_ directory:
++
+[source, sh]
+----
+$ mkdir -p src/app/shared/services
+----
+
+. Generate the service with Angular CLI in the just created folder:
++
+[source, sh]
+----
+$ ng generate service shared/services/product --spec false # <1>
+# Shorthand: ng g s shared/services/product -spec false
+----
+<1> Note the specified path is relative to the _src/app_ directory.
++
+Here is the command's output:
++
+.Generate service command output
+image::fig_03.png[Generate service command output,878,role="thumb"]
+
+. Create _index.ts_ file in the _src/app/shared/services/product_ folder, put following code in there:
++
+[source, js]
+----
+export * from './product.service';
+----
+
+. Replace content of the _product.service.ts_ file with the following code:
++
+[source, js]
+----
+import { Injectable } from '@angular/core';
+import { Http } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+
+@Injectable()
+export class ProductService {
+
+  constructor(private http: Http) {}
+
+  getAll(): Observable<Product[]> {
+    return this.http.get('/data/products/all.json')
+      .map(resp => resp.json());
+  }
+}
+
+export interface Product {
+  description: string;
+  featured: boolean;
+  imageUrl: string;
+  price: number;
+  title: string;
+  id: string;
+}
+----
+
+. Add `ProductService` to the list of `AppModule` providers in the _src/app/app.module.ts_ file:
++
+[source, js]
+----
+import { ProductService } from './shared/services'; // <1>
+
+@NgModule({
+  // Module declarations, imports go here...
+  providers: [ ProductService ], // <2>
+  bootstrap: [ AppComponent ]
+})
+export class AppModule {}
+----
+<1> Because of we created _src/app/shared/services/index.ts_ file we can use a shorter path here.
+<2> Add `ProductService` here.
+
+. To make sure the service is created properly try injecting into `AppComponent`, invoke `getAll()` method, and print result of the request into the console:
++
+[source, js]
+----
+import { ProductService } from './shared/services';
+
+@Component({...})
+export class AppComponent {
+  constructor(productService: ProductService) {
+    productService.getAll()                            // <1>
+        .subscribe(products => console.log(products)); // <2>
+  }
+}
+----
+<1> Since observables are lazy `getAll()` doesn't trigger HTTP request immediately, it waits till someone subscribes to it.
+<2> When the data arrives, print it to the console.
++
+Launch the development web server, open the application in a web browser and take a look at the dev console, you should see an array of product objects printed there.
++
+Remove the code added on this step into `AppComponent` since it won't be responsible for displaying products.
+
+. Commit the changes to save the progress:
++
+[source, sh]
+----
+$ git add -A && git commit -m "Add initial version of ProductService"
 ----
