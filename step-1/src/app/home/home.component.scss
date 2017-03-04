@@ -1,6 +1,12 @@
+@import '../../styles/palette';
+
 :host {
   display: block;
   background: #f3f3f3;
+}
+
+md-tab-group {
+  background: mat-color($ngs-background, card);
 }
 
 .grid-list-container {

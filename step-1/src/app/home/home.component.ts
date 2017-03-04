@@ -10,6 +10,15 @@ import { Product, ProductService } from '../shared/services';
 })
 export class HomeComponent {
 
+  // TODO: Make array items readonly after upgrading tp TypeScript >2.1
+  // https://blogs.msdn.microsoft.com/typescript/2016/12/07/announcing-typescript-2-1/#partial-readonly-record-and-pick
+  private readonly categories = [
+    'all',
+    'featured',
+    'latest',
+    'sport'
+  ];
+
   products: Observable<Product[]>;
 
   constructor(private productService: ProductService) {

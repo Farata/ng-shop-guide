@@ -623,3 +623,46 @@ image::fig_08.png[Home page with product tiles,1131,role="thumb"]
 ----
 $ git add -A && git commit -m "Add product tiles on the home page"
 ----
+
+=== Adding category tabs
+
+. Add `categories` array as the `HomeCompoent`{nbsp}'s property that lists all available categories:
++
+[source, js]
+----
+@Component({...})
+export class HomeComponent {
+  private readonly categories = [
+    'all',
+    'featured',
+    'latest',
+    'sport'
+  ];
+  // Rest of the class definition...
+}
+----
+
+. Add `MdTabGroup` component at the very top of the home component's template. It should render individual `MdTab`{nbsp}s while looping over `categories` array with `*ngFor` directive:
++
+[source, html]
+----
+<md-tab-group>
+  <md-tab *ngFor="let c of categories" [label]="c | uppercase"></md-tab>
+</md-tab-group>
+----
+
+. Add styles for the tab group in _home.component.scss_ file:
++
+[source, sass]
+----
+@import '../../styles/palette';
+
+md-tab-group {
+  background: mat-color($ngs-background, card);
+}
+----
++
+Now the home page in a web browser should look like this:
++
+.Category tabs on the home page
+image::fig_09.png[Category tabs on the home page,933,role="thumb"]
