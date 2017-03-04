@@ -1,7 +1,7 @@
 <div class="grid-list-container">
   <md-grid-list cols="3" gutterSize="16">
     <md-grid-tile *ngFor="let p of products | async">
-      {{ p.title }}
+      <ngs-product-tile [product]="p"></ngs-product-tile>
     </md-grid-tile>
   </md-grid-list>
 </div>

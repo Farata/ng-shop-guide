@@ -507,5 +507,119 @@ image::fig_07.png[Grid list layout,516,role="thumb"]
 +
 [source, sh]
 ----
-$ git add -A && git commit -m "Add HomeComponent, display products in the grid list layout "
+$ git add -A && git commit -m "Add HomeComponent, display products in the grid list layout"
+----
+
+=== Adding product tiles
+
+. Generate new component using Angular CLI:
++
+[source, sh]
+----
+$ ng generate component home/product-tile --spec false
+----
++
+Re-export `ProductTileComponent` from the _src/app/home/index.ts_ file:
++
+[source, js]
+----
+export * from './product-tile/product-tile.component';
+----
++
+Simplify generated import statement for the _ProductTileComponent_ in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+// Instead of this:
+// import { ProductTileComponent } from './home/product-tile/product-tile.component';
+
+// Use this:
+import { HomeComponent, ProductTileComponent } from './home';
+----
+
+. Replace content of the _product-tile.component.ts_ file with the following code:
++
+[source, js]
+----
+import { Component, Input } from '@angular/core';
+import { Product } from '../../shared/services';
+
+@Component({
+  selector: 'ngs-product-tile',
+  styleUrls: [ './product-tile.component.scss' ],
+  templateUrl: './product-tile.component.html'
+})
+export class ProductTileComponent {
+  @Input() product: Product;
+}
+----
+
+. Replace content of the _product-tile.component.html_ file with the following HTML markup:
++
+[source, js]
+----
+<div class="thumbnail" [ngStyle]="{'background-image': 'url(' + product.imageUrl + ')'}"></div>
+<div class="title">{{ product.title }}</div>
+----
+
+. Replace content of the _product-tile.component.scss_ file with the following styles:
++
+[source, sass]
+----
+@import '~@angular/material/core/style/variables';
+@import '../../../styles/palette';
+
+:host {
+  background: mat-color($ngs-background, card);
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+
+  // Children layout
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumbnail {
+  background: no-repeat 50% 50%;
+  background-size: contain;
+  height: 50%;
+  width: 50%;
+}
+
+.title {
+  color: mat-color($ngs-foreground, text);
+  font-family: $ngs-brand-font;
+  font-size: 34px; // Display 1
+
+  @media ($mat-small) {
+    font-size: 24px; // Headline
+  }
+
+  @media ($mat-xsmall) {
+    font-size: 20px; // Title
+  }
+}
+----
+
+. Open _home.component.html_ file and replace data binding expression `{{ p.title }}` with the product tile component:
++
+[source, html]
+----
+<ngs-product-tile [product]="p"></ngs-product-tile>
+----
++
+Now your home page should look like this:
++
+.Home page with product tiles
+image::fig_08.png[Home page with product tiles,1131,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, sh]
+----
+$ git add -A && git commit -m "Add product tiles on the home page"
 ----
