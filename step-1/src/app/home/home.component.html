@@ -1,0 +1,7 @@
+<div class="grid-list-container">
+  <md-grid-list cols="3" gutterSize="16">
+    <md-grid-tile *ngFor="let p of products | async">
+      {{ p.title }}
+    </md-grid-tile>
+  </md-grid-list>
+</div>
