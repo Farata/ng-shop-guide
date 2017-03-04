@@ -15,14 +15,14 @@
 +
 [source, sh]
 ----
-ng set --global packageManager=yarn
+$ ng set --global packageManager=yarn
 ----
 
 . Generate new project:
 +
 [source, sh]
 ----
-ng new ng-shop --prefix ngs
+$ ng new ng-shop --prefix ngs
 ----
 
 . Add Angular Material to the project with one of the two following commands:
@@ -178,3 +178,39 @@ styles: [
 image::fig_02.png[Toolbar with cyan background,417,role="thumb"]
 +
 You may remove `color="primary"` now since the background color of the toolbar in our application will be white.
+
+. Commit the changes to save the progress:
++
+[source, sh]
+----
+$ git add -A && git commit -m "Add custom Angular Material theme"
+----
+
+== Add static NgShop data
+
+. Copy _data_ directory from the class handouts to the _src_ directory of NgShop project:
++
+[source, sh]
+----
+$ cp -r {path-to-handouts}/data src
+----
+
+. Add `"data"` string to the the `apps[0].assets` array in the _.angular-cli.json_ file:
++
+[source, json]
+----
+"assets": [
+  "assets",
+  "data",
+  "favicon.ico"
+],
+----
+
+. Restart development web server with kbd:[Ctrl+C] and `ng serve` to apply changes in _.angular-cli.json_ file.
+
+. Commit the changes to save the progress:
++
+[source, sh]
+----
+$ git add -A && git commit -m "Add static NgShop data"
+----
