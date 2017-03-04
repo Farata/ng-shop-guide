@@ -1,0 +1,15 @@
+= NgShop. Step 1. Home Page.
+
+. _Optionally._ If you have yarn installed, specify it as the default Angular CLI package manager
++
+[source, sh]
+----
+ng set --global packageManager=yarn
+----
+
+. Generate new project:
++
+[source, sh]
+----
+ng new ng-shop
+----
