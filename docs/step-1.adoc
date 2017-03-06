@@ -288,7 +288,7 @@ Here is the command's output:
 .Generate service command output
 image::fig_04.png[Generate service command output,878,role="thumb"]
 
-. Create _index.ts_ file in the _src/app/shared/services/product_ folder, put following code in there:
+. Create _index.ts_ file in the _src/app/shared/services_ folder, put following code in there:
 +
 [source, ts]
 ----
