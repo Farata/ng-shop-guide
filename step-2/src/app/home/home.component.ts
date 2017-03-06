@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
+
+import { ActivatedRoute, Router } from '@angular/router';
+import { MdTabGroup } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 
 import { Product, ProductService } from '../shared/services';
@@ -8,7 +17,7 @@ import { Product, ProductService } from '../shared/services';
   styleUrls: [ './home.component.scss' ],
   templateUrl: './home.component.html'
 })
-export class HomeComponent implements OnDestroy {
+export class HomeComponent implements AfterViewInit, OnDestroy {
 
   // TODO: Make array items readonly after upgrading tp TypeScript >2.1
   // https://blogs.msdn.microsoft.com/typescript/2016/12/07/announcing-typescript-2-1/#partial-readonly-record-and-pick
@@ -45,10 +54,21 @@ export class HomeComponent implements OnDestroy {
 
   products: Observable<Product[]>;
 
+  @ViewChild(MdTabGroup) mdTabGroup: MdTabGroup;
+
   constructor(
       private changeDetectorRef: ChangeDetectorRef,
-      private productService: ProductService) {
-    this.products = this.productService.getAll();
+      private productService: ProductService,
+      private route: ActivatedRoute,
+      private router: Router) {
+
+    this.products = this.route.params
+      // Parameters list below uses the ES6 feature called destructuring.
+      .switchMap(({category}) => {
+        return category === 'all' ?
+          this.productService.getAll() :
+          this.productService.getCategory(category);
+      });
 
     // If we pass this.onMediaQueryChange method directly to the
     // MediaQueryList.addListener(), `this` keyword won't reference the current
@@ -70,9 +90,14 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
+  ngAfterViewInit() {
+    const category = this.route.snapshot.params['category'];
+    this.mdTabGroup.selectedIndex = this.categories.indexOf(category);
+  }
+
   onTabChange(tabIndex: number) {
     const category = this.categories[tabIndex];
-    this.products = this.productService.getCategory(category);
+    this.router.navigate([category], { relativeTo: this.route.parent });
   }
 
   ngOnDestroy() {

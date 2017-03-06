@@ -338,8 +338,85 @@ $ git add -A && git commit -m "Add product page"
 
 == Adding extra features
 
-=== Turning NgShop toolbar logo into a link
-
 === Making category tabs routable
 
+. In _src/app/app.routing.ts_ file replace router path configuration for `HomeComponent` with following code:
++
+[source, ts]
+----
+{ path: '', pathMatch: 'full', redirectTo: 'categories' },
+{ path: 'categories',
+  children: [
+    { path: '', pathMatch: 'full', redirectTo: 'all' },
+    { path: ':category', component: HomeComponent },
+  ]
+},
+----
+
+. In _src/app/home/home.component.ts_ file add following import statements:
++
+[source, ts]
+----
+import { AfterViewInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MdTabGroup } from '@angular/material';
+----
+
+. In `HomeComponent`{nbsp}'s constructor replace `this.products = this.productService.getAll();` line with the following code:
++
+[source, ts]
+----
+this.products = this.route.params
+  // Parameters list below uses the ES6 feature called destructuring.
+  .switchMap(({category}) => {
+    return category === 'all' ?
+      this.productService.getAll() :
+      this.productService.getCategory(category);
+  });
+----
+
+. Replace `onTabChange()` method implementation with the following lines:
++
+[source, ts]
+----
+onTabChange(tabIndex: number) {
+  const category = this.categories[tabIndex];
+  this.router.navigate([category], { relativeTo: this.route.parent });
+}
+----
++
+Now when you click on a tab the route changes and corresponding set of products rendered on the page. However if you refresh the page the wrong tab will be highlighted as active. Let's fix it.
+
+. Add following property to `HomeComponent`:
++
+[source, ts]
+----
+@ViewChild(MdTabGroup) mdTabGroup: MdTabGroup;
+----
+
+. Implement `AfterViewInit` interface for `HomeComponent` class:
++
+[source, ts]
+----
+export class HomeComponent implements AfterViewInit, OnDestroy {
+  // Rest of the class members...
+
+  ngAfterViewInit() {
+    const category = this.route.snapshot.params['category'];
+    this.mdTabGroup.selectedIndex = this.categories.indexOf(category);
+  }
+}
+----
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Making category tabs routable"
+----
+
+
+////
+TODO
 === Creating a routing module
+////
