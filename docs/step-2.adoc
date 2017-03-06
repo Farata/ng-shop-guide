@@ -13,6 +13,76 @@
 
 == Adding routing
 
+. Generate new component that will represent product page using Angular CLI:
++
+[source, shell]
+----
+$ ng generate component product --spec false
+----
+
+. Create _index.ts_ file inside _src/app/product_ directory and re-export `ProductComponent`:
++
+[source, ts]
+----
+export * from './product.component';
+----
+
+. Create _src/app/app.routing.ts_ file and put following code in there:
++
+[source, ts]
+----
+import { Route } from '@angular/router';
+
+import { HomeComponent } from './home';
+import { ProductComponent } from './product';
+
+export const routes: Route[] = [
+  { path: '', component: HomeComponent },
+  { path: 'products/:productId', component: ProductComponent }
+];
+----
+
+. Open _src/app/app.module.ts_ file, add two import statements:
++
+[source, ts]
+----
+import { RouterModule } from '@angular/router';
+import { routes } from './app.routing';
+----
+
+. Add `RouterModule` to the list of `AppModule` imports:
++
+[source, ts]
+----
+@NgModule({
+  imports: [
+    // Rest of the imported modules...
+    RouterModule.forRoot(routes)
+  ],
+  // Module's declarations, providers and bootstrap component...
+})
+export class AppModule {}
+----
+
+. In _src/app/app.component.html_ file replace `<ngs-home></ngs-home>` with a router outlet:
++
+[source, html]
+----
+<router-outlet></router-outlet>
+----
+
+. Open application in a web browser. On the root path you should see the home page as before, but if you manually type `http://localhost:4200/products/1` URL in the address bar, you should see the default Angular CLI generated template rendered for the product component:
++
+.Product component
+image::fig_01.png[Product component,500,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Add basic routing configuration"
+----
+
 == Implementing product page
 
 == Adding extra features
@@ -20,3 +90,5 @@
 === Turning NgShop toolbar logo into a link
 
 === Making category tabs routable
+
+=== Creating a routing module
