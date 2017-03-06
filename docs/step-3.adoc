@@ -120,7 +120,110 @@ $ git add -A && git commit -m "Add shopping cart service"
 
 == Generating and configuring routing for CartComponent
 
+. Generate component that will represent shopping cart page using following Angular CLI command:
++
+[source, shell]
+----
+$ ng generate component cart --spec false
+----
 
+. Generate class that will resolve data before shopping cart is rendered using following Angular CLI command:
++
+[source, ts]
+----
+ng generate class cart/cart.resolver --spec false
+----
+
+. Replace content of the _src/app/cart/cart.resolver.ts_ file with following code:
++
+[source, ts]
+----
+import { Injectable } from '@angular/core';
+import { Resolve } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
+
+import {
+  Product,
+  ProductService,
+  ShoppingCartService
+} from '../shared/services';
+
+@Injectable()
+export class CartResolver implements Resolve<Product[]> {
+
+  constructor(private productService: ProductService,
+              private shoppingCartService: ShoppingCartService) {}
+
+  resolve(): Observable<Product[]> {
+    // Get IDs of all products in the shopping cart.
+    const productsInCart = Object.keys(this.shoppingCartService.getItems());
+
+    // Create an array of lazy HTTP requests. Each request fetches a product.
+    const requests = productsInCart.map(productId =>
+        this.productService.getProductById(productId));
+
+    // Create an observable that emits the result when all the requests
+    // successfully complete.
+    return requests.length ? Observable.forkJoin(requests) : Observable.of([]);
+  }
+}
+----
+
+. Create _index.ts_ file inside _src/app/cart_ directory with the following code:
++
+[source, ts]
+----
+export * from './cart.component';
+export * from './cart.resolver';
+----
+
+. In _src/app/app.routing.ts_ file add import statements for `CartComponent` and `CartResolver` classes,
+add one more path configuration for the shopping cart page:
++
+[source, ts]
+----
+import { CartComponent, CartResolver } from './cart';
+
+export const routes: Route[] = [
+  // Rest of the routing configuration...
+  { path: 'cart',
+    component: CartComponent,
+    resolve: {
+      products: CartResolver
+    }
+  }
+];
+----
+
+. In _src/app/app.module.ts_ file add import statement for `CartResolver` and add it to the providers list of `AppModule`:
++
+[source, ts]
+----
+import { CartComponent, CartResolver } from './cart';
+
+@NgModule({
+  // Module imports, declarations...
+  providers: [
+    CartResolver,
+    // Rest of the providers...
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule {}
+----
+
+. Start the application with `ng serve` command, open a web browser, enter `http://localhost:4200/cart` URL, you should see the default component's message:
++
+.Shopping cart page
+image::fig_01.png[Shopping cart page,424,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Generate cart component, add resolver, configure router"
+---
 
 == Implementing CartComponent
 

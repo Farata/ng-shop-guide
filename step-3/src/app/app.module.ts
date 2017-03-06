@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { ProductService, ShoppingCartService } from './shared/services';
 import { routes } from './app.routing';
 import { AppComponent } from './app.component';
+import { CartComponent, CartResolver } from './cart';
 import { HomeComponent, ProductTileComponent } from './home';
 import { ProductComponent, ProductDetailsComponent } from './product';
 
@@ -21,12 +22,14 @@ import { ProductComponent, ProductDetailsComponent } from './product';
   ],
   declarations: [
     AppComponent,
+    CartComponent,
     HomeComponent,
-    ProductTileComponent,
     ProductComponent,
-    ProductDetailsComponent
+    ProductTileComponent,
+    ProductDetailsComponent,
   ],
   providers: [
+    CartResolver,
     ProductService,
     ShoppingCartService
   ],

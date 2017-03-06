@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 
+import { CartComponent, CartResolver } from './cart';
 import { HomeComponent } from './home';
 import { ProductComponent } from './product';
 
@@ -11,5 +12,11 @@ export const routes: Route[] = [
       { path: ':category', component: HomeComponent },
     ]
   },
-  { path: 'products/:productId', component: ProductComponent }
+  { path: 'products/:productId', component: ProductComponent },
+  { path: 'cart',
+    component: CartComponent,
+    resolve: {
+      products: CartResolver
+    }
+  }
 ];
