@@ -1,4 +1,4 @@
-= Hands-on #1. Developing Home page.
+= Hands-on #1. Developing home page.
 :experimental:
 :icons: font
 :idprefix:

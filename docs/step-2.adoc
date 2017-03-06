@@ -1,0 +1,22 @@
+= Hands-on #2. Developing product page.
+:experimental:
+:icons: font
+:idprefix:
+:idseparator: -
+:imagesdir: step-2
+:nbsp:
+:sectanchors:
+:sectlinks:
+:sectnums:
+:source-highlighter: prettify
+:toc:
+
+== Adding routing
+
+== Implementing product page
+
+== Adding extra features
+
+=== Turning NgShop toolbar logo into a link
+
+=== Making category tabs routable
