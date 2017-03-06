@@ -1,0 +1,26 @@
+<div class="image">
+  <img [attr.src]="product?.imageUrl"
+       [attr.alt]="product?.title">
+</div>
+
+<div class="content">
+  <h1>{{ product?.title }}</h1>
+  <p>{{ product?.description }}</p>
+
+  <div class="quantity">
+    <md-select placeholder="Quantity"
+               [(ngModel)]="quantity">
+      <md-option [value]="1">1 item</md-option>
+      <md-option [value]="2">2 items</md-option>
+      <md-option [value]="3">3 items</md-option>
+      <md-option [value]="4">4 items</md-option>
+      <md-option [value]="5">5 items</md-option>
+    </md-select>
+
+    <button md-mini-fab
+            (click)="addItems()"
+            [disabled]="!quantity">
+      <md-icon>add_shopping_cart</md-icon>
+    </button>
+  </div>
+</div>

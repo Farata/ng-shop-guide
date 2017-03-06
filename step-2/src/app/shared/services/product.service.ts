@@ -17,6 +17,12 @@ export class ProductService {
     return this.http.get(`/data/products/${category}.json`)
       .map(resp => resp.json());
   }
+
+  getProductById(productId: string): Observable<Product> {
+    return this.http.get('/data/products/all.json')
+      .map(resp => resp.json().find(p => p.id === productId));
+  }
+
 }
 
 export interface Product {

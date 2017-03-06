@@ -489,7 +489,7 @@ Re-export `ProductTileComponent` from the _src/app/home/index.ts_ file:
 export * from './product-tile/product-tile.component';
 ----
 +
-Simplify generated import statement for the _ProductTileComponent_ in the _src/app/app.module.ts_ file:
+Simplify generated import statement for the `ProductTileComponent` in the _src/app/app.module.ts_ file:
 +
 [source, ts]
 ----

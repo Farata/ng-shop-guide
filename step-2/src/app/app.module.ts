@@ -9,7 +9,7 @@ import { ProductService } from './shared/services';
 import { routes } from './app.routing';
 import { AppComponent } from './app.component';
 import { HomeComponent, ProductTileComponent } from './home';
-import { ProductComponent } from './product';
+import { ProductComponent, ProductDetailsComponent } from './product';
 
 @NgModule({
   imports: [
@@ -23,7 +23,8 @@ import { ProductComponent } from './product';
     AppComponent,
     HomeComponent,
     ProductTileComponent,
-    ProductComponent
+    ProductComponent,
+    ProductDetailsComponent
   ],
   providers: [
     ProductService

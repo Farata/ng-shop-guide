@@ -85,6 +85,248 @@ $ git add -A && git commit -m "Add basic routing configuration"
 
 == Implementing product page
 
+. Add `getProductById()` method to the list `ProductService` in _src/app/shared/services/product.service.ts_ file:
++
+[source, ts]
+----
+
+@Injectable()
+export class ProductService {
+  // Rest of the class methods...
+
+  getProductById(productId: string): Observable<Product> {
+    return this.http.get('/data/products/all.json')
+      .map(resp => resp.json().find(p => p.id === productId));
+  }
+}
+----
+
+. Replace content of the _src/app/product/product.component.ts_ file with the following code:
++
+[source, ts]
+----
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+// Every module is responsible for importing RxJS operators it needs. Every
+// operator contributes to the bundle size, so initially no operators are
+// included.
+import 'rxjs/add/operator/mergeMap';
+
+import { Product, ProductService } from '../shared/services';
+
+@Component({
+  selector: 'ngs-product',
+  styleUrls: [ './product.component.scss' ],
+  templateUrl: './product.component.html'
+})
+export class ProductComponent {
+  product: Product;
+
+  constructor(productService: ProductService, route: ActivatedRoute) {
+    // Router reuses existing instance of ProductComponent when only productId
+    // parameter changes. Subscribe to `ActivatedRoute.params` observable in
+    // order to update page when productId changes.
+    route.params
+      .mergeMap(({productId}) => productService.getProductById(productId))
+      .subscribe(product => this.product = product);
+  }
+}
+----
+
+. Replace content of the _src/app/product/product.component.scss_ files with the following styles:
++
+[source, scss]
+----
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px;
+}
+----
+
+. Generate new component that will represent product details information using Angular CLI:
++
+[source, shell]
+----
+$ ng generate component product/product-details --spec false
+----
++
+Re-export `ProductDetailsComponent` from the _src/app/product/index.ts_ file:
++
+[source, ts]
+----
+export * from './product-tile/product-tile.component';
+----
++
+Simplify generated import statement for the `ProductDetailsComponent` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+// Instead of this:
+// import { ProductDetailsComponent } from './product/product-details/product-details.component';
+
+// Use this:
+import { ProductComponent, ProductDetailsComponent } from './product';
+----
+
+. Replace content of the _src/app/product/product-details/product-details.component.ts_ file with the following code:
++
+[source, ts]
+----
+import { Component, Input } from '@angular/core';
+import { Product } from '../../shared/services';
+
+@Component({
+  selector: 'ngs-product-details',
+  styleUrls: [ './product-details.component.scss' ],
+  templateUrl: './product-details.component.html'
+})
+export class ProductDetailsComponent {
+  @Input() product: Product;
+  quantity: number;
+
+  addItems() {
+    console.log(`Quantity: ${this.quantity}`);
+    this.quantity = null; // Reset selected number of items.
+  }
+}
+----
+
+. Replace content of the _src/app/product/product-details/product-details.component.html_ file with the following HTML markup:
++
+[source, html]
+----
+<div class="image">
+  <img [attr.src]="product?.imageUrl"
+       [attr.alt]="product?.title">
+</div>
+
+<div class="content">
+  <h1>{{ product?.title }}</h1>
+  <p>{{ product?.description }}</p>
+
+  <div class="quantity">
+    <md-select placeholder="Quantity"
+               [(ngModel)]="quantity">
+      <md-option [value]="1">1 item</md-option>
+      <md-option [value]="2">2 items</md-option>
+      <md-option [value]="3">3 items</md-option>
+      <md-option [value]="4">4 items</md-option>
+      <md-option [value]="5">5 items</md-option>
+    </md-select>
+
+    <button md-mini-fab
+            (click)="addItems()"
+            [disabled]="!quantity">
+      <md-icon>add_shopping_cart</md-icon>
+    </button>
+  </div>
+</div>
+----
+
+. Replace content of the _src/app/product/product-details/product-details.component.scss_ file with the following styles:
++
+[source, scss]
+----
+@import '~@angular/material/core/style/variables';
+@import '../../../styles/palette';
+
+:host {
+  padding: 128px 0 64px;
+
+  // Children layout
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media ($mat-xsmall) {
+    padding-top: 32px;
+  }
+}
+
+.image {
+  width: 40vmin;
+
+  img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+  }
+}
+
+.content {
+  flex: 0 1 400px;
+
+  h1 {
+    color: mat-color($ngs-foreground, text);
+    font-family: $ngs-brand-font;
+    font-size: 45px; // Display 2
+    font-weight: 300;
+    line-height: 1.5em;
+
+    @media ($mat-xsmall) {
+      font-size: 34px; // Display 1
+      text-align: center;
+    }
+  }
+
+  p {
+    font-weight: 300;
+    line-height: 1.5em;
+  }
+}
+
+.quantity {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+
+  md-select {
+    font-size: 16px;
+    flex: 0 1 200px;
+    max-width: 200px;
+    margin-right: 20px;
+  }
+
+  button {
+    color: mat-color($ngs-foreground, secondary-text);
+  }
+}
+----
+
+. Start development web server with `ng serve` command and open `http://localhost:4200/products/-KaXxv2xD9WaIqHMsHYM` URL in a web browser. You should see the following:
++
+.A page with product details
+image::fig_02.png[A page with product details,844, role="thumb"]
+
+. Now let's make product tiles on the home page open the corresponding product page when users click on a tile. Open _src/app/home/home.component.html_ file and add `routerLink` directive to the `<ngs-product-tile>` component:
++
+[source, html]
+----
+<ngs-product-tile [product]="p"
+                  [routerLink]="['/products', p.id]"> <!--1-->
+</ngs-product-tile>
+----
+<1> This line was added.
+
+. To make product tile to look like a link let's add a pointer cursor when users hover over a tile. Add following style to the _src/app/home/home.component.scss_ file:
++
+[source, scss]
+----
+ngs-product-tile {
+  cursor: pointer;
+}
+----
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Add product page"
+----
+
 == Adding extra features
 
 === Turning NgShop toolbar logo into a link
