@@ -1,4 +1,4 @@
-= NgShop. Step 1. Home Page.
+= Hands-on #1. Developing Home page.
 :experimental:
 :icons: font
 :idprefix:
@@ -8,27 +8,28 @@
 :sectanchors:
 :sectlinks:
 :sectnums:
+:source-highlighter: prettify
 :toc:
 
 == Bootstrapping the project
 
 . _Optionally._ If you have yarn installed, specify it as the default Angular CLI package manager
 +
-[source, sh]
+[source, shell]
 ----
 $ ng set --global packageManager=yarn
 ----
 
 . Generate new project:
 +
-[source, sh]
+[source, shell]
 ----
 $ ng new ng-shop --prefix ngs --style scss
 ----
 
 . Add Angular Material to the project with one of the two following commands:
 +
-[source, sh]
+[source, shell]
 ----
 # EITHER with yarn:
 $ yarn add @angular/material -E           # <1>
@@ -39,14 +40,14 @@ $ npm install @angular/material --save -E # <1>
 
 . Add a prebuilt Angular Material theme to the _src/styles.css_ file:
 +
-[source, css]
+[source, scss]
 ----
 @import '~@angular/material/core/theming/prebuilt/indigo-pink.css';
 ----
 
 . Add `MaterialModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
 +
-[source, js]
+[source, ts]
 ----
 import { MaterialModule } from '@angular/material'; // <1>
 
@@ -70,7 +71,7 @@ image::fig_01.png[Toolbar,361,203,role="thumb"]
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Add Angular Material package"
 ----
@@ -79,21 +80,21 @@ $ git add -A && git commit -m "Add Angular Material package"
 
 . Create the directory _src/styles_:
 +
-[source, sh]
+[source, shell]
 ----
 $ mkdir src/styles
 ----
 
 . Move _src/styles.css_ file to the just created directory:
 +
-[source, sh]
+[source, shell]
 ----
 $ mv src/styles.scss src/styles/styles.scss
 ----
 
 . Create __palette.scss_ and _theme.scss_ files in the _src/styles_ folder:
 +
-[source, sh]
+[source, shell]
 ----
 $ touch src/styles/_palette.scss
 $ touch src/styles/theme.scss
@@ -101,7 +102,7 @@ $ touch src/styles/theme.scss
 
 . Put the styles below to the __palette.scss_ file:
 +
-[source, sass]
+[source, scss]
 ----
 @import '~@angular/material/core/theming/theming';
 
@@ -123,7 +124,7 @@ $ngs-brand-font: 'Abril Fatface', cursive;
 
 . Put the styles below to the _theme.scss_ file:
 +
-[source, sass]
+[source, scss]
 ----
 @import url('https://fonts.googleapis.com/css?family=Abril+Fatface');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
@@ -152,7 +153,7 @@ body {
 
 . Replace content of the __styles.scss__ file:
 +
-[source, css]
+[source, scss]
 ----
 body {
   margin: 0;
@@ -165,7 +166,7 @@ body {
 +
 [source, json]
 ----
-styles: [
+"styles": [
   "styles/styles.scss",
   "styles/theme.scss"
 ]
@@ -182,41 +183,9 @@ Remove `color="primary"` now since the background color of the toolbar in our ap
 
 . Now let's add the permanent version of toolbar that we'll be using in the app. First, copy _ngshop-logo.svg_ image from the handouts to the _src/assets_ folder:
 +
-[source, sh]
+[source, shell]
 ----
 $ cp {path-to-handouts}/ngshop-logo.svg src/assets
-----
-
-. Replace content of the _src/app/app.component.ts_ with the following code:
-+
-[source, js]
-----
-import { Component } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MdIconRegistry } from '@angular/material';
-
-@Component({
-  selector: 'ngs-app',
-  styleUrls: [ './app.component.scss' ],
-  templateUrl: './app.component.html',
-})
-export class AppComponent {
-
-  constructor(
-      private domSanitizer: DomSanitizer,
-      private iconRegistry: MdIconRegistry) {
-    this.registerIcons(new Map<string, string>([
-      [ 'logo', 'assets/ngshop-logo.svg' ]
-    ]));
-  }
-
-  private registerIcons(icons: Map<string, string>) {
-    icons.forEach((url, id) => {
-      const safeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
-      this.iconRegistry.addSvgIconInNamespace('ngs', id, safeUrl);
-    });
-  }
-}
 ----
 
 . Replace content of the _src/app/app.component.html_ file with the following HTML markup:
@@ -225,16 +194,14 @@ export class AppComponent {
 ----
 <md-toolbar>
   <span class="fill"></span>
-  <a routerLink="/">
-    <md-icon class="logo" svgIcon="ngs:logo"></md-icon>
-  </a>
+  <img class="logo" src="assets/ngshop-logo.svg" alt="NgShop Logo">
   <span class="fill"></span>
 </md-toolbar>
 ----
 
 . Replace content of the _src/app/app.component.scss_ files with following styles:
 +
-[source, sass]
+[source, scss]
 ----
 @import '../styles/palette';
 
@@ -257,14 +224,14 @@ md-toolbar {
 }
 ----
 +
-After applying the changes to the `AppComponent` the application should look like this in a web browser:
+After applying the changes to `AppComponent` the application should look like this:
 +
 .Complete toolbar
 image::fig_03.png[Complete toolbar,489,role="thumb"]
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Add custom Angular Material theme"
 ----
@@ -273,7 +240,7 @@ $ git add -A && git commit -m "Add custom Angular Material theme"
 
 . Copy _data_ directory from the class handouts to the _src_ directory of NgShop project:
 +
-[source, sh]
+[source, shell]
 ----
 $ cp -r {path-to-handouts}/data src
 ----
@@ -293,7 +260,7 @@ $ cp -r {path-to-handouts}/data src
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Add static NgShop data"
 ----
@@ -302,14 +269,14 @@ $ git add -A && git commit -m "Add static NgShop data"
 
 . Create _src/app/shared/services_ directory:
 +
-[source, sh]
+[source, shell]
 ----
 $ mkdir -p src/app/shared/services
 ----
 
 . Generate the service with Angular CLI in the just created folder:
 +
-[source, sh]
+[source, shell]
 ----
 $ ng generate service shared/services/product --spec false # <1>
 # Shorthand: ng g s shared/services/product -spec false
@@ -323,14 +290,14 @@ image::fig_04.png[Generate service command output,878,role="thumb"]
 
 . Create _index.ts_ file in the _src/app/shared/services/product_ folder, put following code in there:
 +
-[source, js]
+[source, ts]
 ----
 export * from './product.service';
 ----
 
 . Replace content of the _product.service.ts_ file with the following code:
 +
-[source, js]
+[source, ts]
 ----
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
@@ -360,7 +327,7 @@ export interface Product {
 
 . Add `ProductService` to the list of `AppModule` providers in the _src/app/app.module.ts_ file:
 +
-[source, js]
+[source, ts]
 ----
 import { ProductService } from './shared/services'; // <1>
 
@@ -376,19 +343,15 @@ export class AppModule {}
 
 . To make sure the service is created properly try injecting into `AppComponent`, invoke `getAll()` method, and print result of the request into the console:
 +
-[source, js]
+[source, ts]
 ----
 import { ProductService } from './shared/services';
 
 @Component({...})
 export class AppComponent {
-  constructor(
-      private domSanitizer: DomSanitizer,
-      private iconRegistry: MdIconRegistry,
-      productService: ProductService) {
+  constructor(productService: ProductService) {
     productService.getAll()                            // <1>
         .subscribe(products => console.log(products)); // <2>
-    // Rest of the constructor's code...
   }
 }
 ----
@@ -401,7 +364,7 @@ Remove `ProductService` from `AppComponent` since it won't be responsible for di
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Add initial version of ProductService"
 ----
@@ -411,7 +374,7 @@ $ git add -A && git commit -m "Add initial version of ProductService"
 === Fetching products from the server, implementing grid list layout
 . Generate new component using Angular CLI:
 +
-[source, sh]
+[source, shell]
 ----
 $ ng generate component home --spec false
 ----
@@ -421,14 +384,14 @@ image::fig_05.png[Generate component command output,460,role="thumb"]
 
 . Create _index.ts_ file inside _src/app/home_ directory with the following code:
 +
-[source, js]
+[source, ts]
 ----
 export * from './home.component';
 ----
 +
 Now you can simplify the import statement for `HomeComponent` in _src/app/app.module.ts_ file:
 +
-[source, js]
+[source, ts]
 ----
 import { HomeComponent } from './home'; // instead of './home/home.component'
 ----
@@ -452,7 +415,7 @@ image::fig_06.png[Home component rendered on the page,425,role="thumb"]
 
 . Replace content of the _src/app/home/home.component.ts_ file with the following code:
 +
-[source, js]
+[source, ts]
 ----
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -486,7 +449,7 @@ export class HomeComponent {
 
 . Replace content of the _src/app/home/home.component.scss_ file with the following styles:
 +
-[source, sass]
+[source, scss]
 ----
 :host {
   display: block;
@@ -505,7 +468,7 @@ image::fig_07.png[Grid list layout,516,role="thumb"]
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Add HomeComponent, display products in the grid list layout"
 ----
@@ -514,14 +477,14 @@ $ git add -A && git commit -m "Add HomeComponent, display products in the grid l
 
 . Generate new component using Angular CLI:
 +
-[source, sh]
+[source, shell]
 ----
 $ ng generate component home/product-tile --spec false
 ----
 +
 Re-export `ProductTileComponent` from the _src/app/home/index.ts_ file:
 +
-[source, js]
+[source, ts]
 ----
 export * from './product-tile/product-tile.component';
 ----
@@ -539,7 +502,7 @@ import { HomeComponent, ProductTileComponent } from './home';
 
 . Replace content of the _product-tile.component.ts_ file with the following code:
 +
-[source, js]
+[source, ts]
 ----
 import { Component, Input } from '@angular/core';
 import { Product } from '../../shared/services';
@@ -556,7 +519,7 @@ export class ProductTileComponent {
 
 . Replace content of the _product-tile.component.html_ file with the following HTML markup:
 +
-[source, js]
+[source, ts]
 ----
 <div class="thumbnail" [ngStyle]="{'background-image': 'url(' + product.imageUrl + ')'}"></div>
 <div class="title">{{ product.title }}</div>
@@ -564,7 +527,7 @@ export class ProductTileComponent {
 
 . Replace content of the _product-tile.component.scss_ file with the following styles:
 +
-[source, sass]
+[source, scss]
 ----
 @import '~@angular/material/core/style/variables';
 @import '../../../styles/palette';
@@ -614,12 +577,13 @@ export class ProductTileComponent {
 +
 Now your home page should look like this:
 +
+[[figure-8]]
 .Home page with product tiles
 image::fig_08.png[Home page with product tiles,1131,role="thumb"]
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Add product tiles on the home page"
 ----
@@ -628,7 +592,7 @@ $ git add -A && git commit -m "Add product tiles on the home page"
 
 . Add `categories` array as the `HomeCompoent`{nbsp}'s property that lists all available categories:
 +
-[source, js]
+[source, ts]
 ----
 @Component({...})
 export class HomeComponent {
@@ -653,7 +617,7 @@ export class HomeComponent {
 
 . Add styles for the tab group in _home.component.scss_ file:
 +
-[source, sass]
+[source, scss]
 ----
 @import '../../styles/palette';
 
@@ -671,7 +635,7 @@ image::fig_09.png[Category tabs on the home page,933,role="thumb"]
 
 . Add `getCategory()` method to the `ProductService` class:
 +
-[source, js]
+[source, ts]
 ----
 @Injectable()
 export class ProductService {
@@ -686,7 +650,7 @@ export class ProductService {
 
 . In `HomeComponent`{nbsp}'s template add event binding for the `selectedIndexChange` event:
 +
-[source, js]
+[source, ts]
 ----
 <md-tab-group (selectedIndexChange)="onTabChange($event)"> <!--1-->
 ----
@@ -694,7 +658,7 @@ export class ProductService {
 
 . Implement `onTabChange()` method in `HomeComponent`:
 +
-[source, js]
+[source, ts]
 ----
 @Component({...})
 export class HomeComponent {
@@ -711,7 +675,217 @@ export class HomeComponent {
 
 . Commit the changes to save the progress:
 +
-[source, sh]
+[source, shell]
 ----
 $ git add -A && git commit -m "Make categories tabs interactive"
+----
+
+== Adding extra features
+
+=== Using MdIcon for NgShop Logo
+
+. Replace content of the _src/app/app.component.ts_ with the following code:
++
+[source, ts]
+----
+import { Component } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MdIconRegistry } from '@angular/material';
+
+@Component({
+  selector: 'ngs-app',
+  styleUrls: [ './app.component.scss' ],
+  templateUrl: './app.component.html',
+})
+export class AppComponent {
+
+  constructor(
+      private domSanitizer: DomSanitizer,
+      private iconRegistry: MdIconRegistry) {
+    this.registerIcons(new Map<string, string>([
+      [ 'logo', 'assets/ngshop-logo.svg' ]
+    ]));
+  }
+
+  private registerIcons(icons: Map<string, string>) {
+    icons.forEach((url, id) => {
+      const safeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+      this.iconRegistry.addSvgIconInNamespace('ngs', id, safeUrl);
+    });
+  }
+}
+----
+
+. In the _app.component.html_ file replace `<img>` element with `MdIcon` component:
++
+[source, html]
+----
+<md-icon class="logo" svgIcon="ngs:logo"></md-icon>
+----
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Use MdIcon for NgShop toolbar logo"
+----
+
+=== Making products grid list responsive
+
+. In the _home.component.ts_ file import two more classes from @angular/core module - `ChangeDetectorRef` and `OnDestroy`:
++
+[source, ts]
+----
+import {
+    ChangeDetectorRef, // <1>
+    Component,
+    OnDestroy          // <1>
+} from '@angular/core';
+----
+<1> These two lines have been added.
+
+. Add following code to the `HomeComponent` class members, right after `categories` property declaration:
++
+[source, ts]
+----
+
+/**
+ * Keeps the callback function that we pass to the MediaQueryList.addListener() and
+ * method MediaQueryList.removeListener(). It must be exactly the same instance of
+ * the function to succesfully unsubsribe from notifications and prevent memory leaks.
+ */
+private mediaQueryListener: MediaQueryListListener;
+
+/**
+ * Lists breakpoints defined in the Material Design guidelines, and their corresponding
+ * short names. We use names to easier match breakpoint to the current screen size, see
+ * method onMediaQueryChange().
+ *
+ * For the Material Design responsive UI guidelines see:
+ * https://material.io/guidelines/layout/responsive-ui.html#responsive-ui-breakpoints.
+ */
+private readonly mediaQueries: Map<MediaQueryList, string> = new Map([
+  [matchMedia('(max-width: 600px)'),                         'xsmall'],
+  [matchMedia('(max-width: 960px) and (min-width: 601px)'),  'small'],
+  [matchMedia('(max-width: 1280px) and (min-width: 961px)'), 'medium'],
+  [matchMedia('(min-width: 1281px)'),                        'large']
+]);
+
+columns: number;
+----
+
+. Add `ChangeDetectorRef` to constructor's parameters:
++
+[source, ts]
+----
+constructor(
+    private changeDetectorRef: ChangeDetectorRef, // <1>
+    private productService: ProductService) {
+  // Rest of the constructor's body...
+}
+----
+<1> This lines was added.
+
+. Add following code at the end of the constructor's definition, right before closing curly braces:
++
+[source, ts]
+----
+// If we pass this.onMediaQueryChange method directly to the
+// MediaQueryList.addListener(), `this` keyword won't reference the current
+// component's instance within onMediaQueryChange() body. We need to bind
+// onMediaQueryChange() to the current instance using Function.bind().
+// However Function.bind() dynamically creates a new instance of the
+// function, and we won't be able to remove the listener, since we don't
+// have a reference to the function returned by Function.bind(). To fix this
+// behavior we save the function in the component's property
+// this.mediaQueryListener.
+this.mediaQueryListener = this.onMediaQueryChange.bind(this);
+this.mediaQueries.forEach((screenSize, mediaQueryList) => {
+  mediaQueryList.addListener(this.mediaQueryListener);
+
+  // Set initial number of grid list columns.
+  if (mediaQueryList.matches) {
+    this.updateGridListColumns(mediaQueryList);
+  }
+});
+----
+
+. Add two following methods at the end of `HomeComponent` class declaration, right before closing curly brace:
++
+[source, ts]
+----
+/**
+ * Invoked when one of the breakpoints is triggered.
+ */
+private onMediaQueryChange(mediaQueryListOrEvent: MediaQueryList|any) {
+  // Google Chrome passes an instance of MediaQueryListEvent as the argument,
+  // Firefox passes a MediaQueryList instance. Find out what has been passed
+  // to make the rest of the method's code cross-browser compatible.
+  const mql: MediaQueryList = 'target' in mediaQueryListOrEvent ?
+    mediaQueryListOrEvent.target :
+    mediaQueryListOrEvent;
+
+  if (mql.matches) {
+    this.updateGridListColumns(mql);
+
+    // Currently zone.js doesn't patch the MediaQueryList API, this means
+    // the Angular change detection mechanism is not automatically triggered
+    // when a MediaQueryListener finishes its work. So we need to trigger the
+    // change detector manually.
+    //
+    // For zone.js issue see: https://github.com/angular/zone.js/issues/243
+    this.changeDetectorRef.detectChanges();
+  }
+}
+
+/**
+ * Adjusts number of grid list columns when the screen size changes.
+ */
+private updateGridListColumns(mediaQueryList: MediaQueryList) {
+  switch (this.mediaQueries.get(mediaQueryList)) {
+    case 'xsmall': this.columns = 1; break;
+    case 'small': this.columns = 2; break;
+    case 'medium':
+    case 'large': this.columns = 3; break;
+  }
+}
+----
+
+. Implement `OnDestroy` interface for `HomeComponent` class. Add following implementation for the mandatory `ngOnDestroy()` method:
++
+[source, ts]
+----
+export class HomeComponent implements OnDestroy {
+  // Rest of the class declaration...
+
+  ngOnDestroy() {
+    this.mediaQueries.forEach((screenSize, mediaQueryList) => {
+      mediaQueryList.removeListener(this.mediaQueryListener);
+    });
+  }
+}
+----
+
+. Now bind `MdGridList`{nbsp}'s `cols` property to the `HomeComponent`{nbsp}'s `columns` property in the _home.component.html_ template:
++
+[source, html]
+----
+<md-grid-list
+    [cols]="columns" <!--1-->
+    gutterSize="16">
+  <!-- Tiles declaration... -->
+</md-grid-list>
+----
+<1> This property binding was added.
+
+. Open the application in a web browser. On wide screens you should see 3 columns as shown on <<figure-8,Figure 8>>. But if you start narrowing the window, layout will first switch to 2 columns and then all of the products will be vertically aligned in a single column:
++
+.Products grid layout on narrow screens
+image::fig_10.jpg[Products grid layout on narrow screens]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Make products grid responsive"
 ----
