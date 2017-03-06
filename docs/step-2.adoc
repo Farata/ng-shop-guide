@@ -320,6 +320,15 @@ ngs-product-tile {
 }
 ----
 
+. One more little detail, wrap logo in _src/app/app.component.html_ file into an `<a>` element with `routerLink` directive that leads to the home page. So users can click on the logo in any part of the application and navigate to the home:
++
+[source, html]
+----
+<a routerLink="/">
+  <md-icon class="logo" svgIcon="ngs:logo"></md-icon>
+</a>
+----
+
 . Commit the changes to save the progress:
 +
 [source, shell]
