@@ -1,3 +1,32 @@
-<p>
-  cart works!
-</p>
+<div class="content">
+  <div class="cart-item" *ngFor="let p of products">
+
+    <div class="cart-item-image">
+      <img [attr.src]="p.imageUrl" [attr.alt]="p.title">
+    </div>
+
+    <div class="cart-item-title">
+      <a [routerLink]="['/products', p.id]">{{ p.title }}</a>
+    </div>
+
+    <div class="cart-item-quantity">
+      <md-input-container>
+        <input mdInput placeholder="Quantity" [value]="quantity[p.id]">
+      </md-input-container>
+    </div>
+
+    <div class="cart-item-price">{{ p.price | currency:'USD':true }}</div>
+
+    <div class="cart-item-remove">
+      <button md-icon-button (click)="removeItem(p.id)">
+        <md-icon>close</md-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="cart-actions">
+    Total:
+    <div class="total">{{ total | currency:'USD':true }}</div>
+    <a md-raised-button>CHECKOUT</a>
+  </div>
+</div>

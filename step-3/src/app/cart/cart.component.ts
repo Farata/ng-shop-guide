@@ -1,15 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+import { Product, ShoppingCartService } from '../shared/services';
 
 @Component({
   selector: 'ngs-cart',
+  styleUrls: [ './cart.component.scss' ],
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.scss']
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CartComponent implements OnInit {
+export class CartComponent {
 
-  constructor() { }
+  products: Product[];
+  quantity: any;
 
-  ngOnInit() {
+  constructor(private cart: ShoppingCartService, route: ActivatedRoute) {
+    this.products = route.snapshot.data['products'];
+    this.quantity = this.cart.getItems();
+  }
+
+  get total() {
+    const cartItems = this.cart.getItems();
+    return Object.keys(cartItems).reduce((total, productId) => {
+      const product = this.products.find(p => p.id === productId);
+      const quantity = cartItems[productId];
+      return total + product.price * quantity;
+    }, 0);
+  }
+
+  removeItem(productId: string) {
+    const index = this.products.findIndex(p => p.id === productId);
+    this.cart.removeItem(productId);
+    this.products.splice(index, 1);
   }
 
 }

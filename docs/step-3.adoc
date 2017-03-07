@@ -223,9 +223,222 @@ image::fig_01.png[Shopping cart page,424,role="thumb"]
 [source, shell]
 ----
 $ git add -A && git commit -m "Generate cart component, add resolver, configure router"
----
+----
 
 == Implementing CartComponent
+
+. Replace content of the _src/app/cart/cart.component.ts_ file with the following code:
++
+[source, ts]
+----
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Product, ShoppingCartService } from '../shared/services';
+
+@Component({
+  selector: 'ngs-cart',
+  styleUrls: [ './cart.component.scss' ],
+  templateUrl: './cart.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CartComponent {
+
+  products: Product[];
+  quantity: any;
+
+  constructor(private cart: ShoppingCartService, route: ActivatedRoute) {
+    this.products = route.snapshot.data['products'];
+    this.quantity = this.cart.getItems();
+  }
+
+  get total() {
+    const cartItems = this.cart.getItems();
+    return Object.keys(cartItems).reduce((total, productId) => {
+      const product = this.products.find(p => p.id === productId);
+      const quantity = cartItems[productId];
+      return total + product.price * quantity;
+    }, 0);
+  }
+
+  removeItem(productId: string) {
+    const index = this.products.findIndex(p => p.id === productId);
+    this.cart.removeItem(productId);
+    this.products.splice(index, 1);
+  }
+}
+----
+
+. Replace content of the _src/app/cart/cart.component.html_ file with the following HTML markup:
++
+[source, html]
+----
+<div class="content">
+  <div class="cart-item" *ngFor="let p of products">
+
+    <div class="cart-item-image">
+      <img [attr.src]="p.imageUrl" [attr.alt]="p.title">
+    </div>
+
+    <div class="cart-item-title">
+      <a [routerLink]="['/products', p.id]">{{ p.title }}</a>
+    </div>
+
+    <div class="cart-item-quantity">
+      <md-input-container>
+        <input mdInput placeholder="Quantity" [value]="quantity[p.id]">
+      </md-input-container>
+    </div>
+
+    <div class="cart-item-price">{{ p.price | currency:'USD':true }}</div>
+
+    <div class="cart-item-remove">
+      <button md-icon-button (click)="removeItem(p.id)">
+        <md-icon>close</md-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="cart-actions">
+    Total:
+    <div class="total">{{ total | currency:'USD':true }}</div>
+    <a md-raised-button>CHECKOUT</a>
+  </div>
+</div>
+----
+
+. Replace content of the _src/app/cart/cart.component.scss_ file with the following styles:
++
+[source, scss]
+----
+@import '../../styles/palette';
+
+:host {
+  display: block;
+  padding: 64px 16px 16px;
+}
+
+.content {
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  color: mat-color($ngs-foreground, secondary-text);
+  margin-bottom: 24px;
+}
+
+.cart-item-image {
+  height: 72px;
+  width: 72px;
+
+  img {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.cart-item-title {
+  flex: 2;
+  font-weight: 500;
+  margin-left: 24px;
+
+  a {
+    color: mat-color($ngs-foreground, text);
+    text-decoration: none;
+  }
+}
+
+.cart-item-quantity {
+  flex: 1 1 70px;
+  margin-right: 24px;
+
+  md-input-container {
+    width: 100%;
+    max-width: 100px;
+  }
+}
+
+.cart-item-price {
+  width: 40px;
+}
+
+.cart-item-remove {
+  margin-left: 48px;
+
+  [md-icon-button] {
+    line-height: 34px;
+    height: 34px;
+    width: 34px;
+  }
+
+  md-icon {
+    line-height: 18px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+}
+
+.cart-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-weight: 500;
+
+  .total {
+    margin: 0 64px 0 24px;
+  }
+}
+----
+
+. Now the shopping cart is capable of displaying products, but we need a way to add products to the cart. Let's make Add Items button work in product details component. Add import statement for the `ShoppingCartService` and inject it into component's constructor:
++
+[source, ts]
+----
+import { Product, ShoppingCartService } from '../../shared/services';
+
+@Component({...})
+export class ProductDetailsComponent {
+  constructor(private shoppingCartService: ShoppingCartService) {}
+  // Rest of the class declaration...
+}
+----
+
+. Replace `addItems()` method implementation with the following code:
++
+[source, ts]
+----
+addItems() {
+  this.shoppingCartService.addItem(this.product.id, this.quantity);
+  this.quantity = null; // Reset selected number of items.
+}
+----
+
+. Now launch the development web server with `ng serve`, try adding a product in the shopping cart and manually enter `http://localhost:4200/cart` URL in the address bar. You should see similar page:
++
+.Shopping cart with one item
+image::fig_02.png[Shopping cart with one item,741,role="thumb"]
++
+Open _Developer Tools_ => _Application_ => _Local Storage_, you should be able to see a local storage entry that represents the cart state:
++
+.Shopping cart state serialized in the local storage
+image::fig_03.png[Shopping cart state serialized in the local storage,1105,role="thumb"]
++
+If you click on the remove button next to the product's price, the product should disappear both from the page and from the local storage. Total should be $0.00:
++
+.Empty shopping cart
+image::fig_04.gif[Empty shopping cart,623,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Add shopping cart UI"
+----
+
+== Adding form support
 
 == Making add-to-cart button work on product page
 
