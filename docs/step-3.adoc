@@ -440,10 +440,181 @@ $ git add -A && git commit -m "Add shopping cart UI"
 
 == Adding form support
 
-== Making add-to-cart button work on product page
+. In _src/app/cart/cart.component.ts_ add following import statements:
++
+[source, ts]
+----
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import 'rxjs/add/operator/debounceTime';
+----
+
+. Replace `quantity: any;` class member with the following one:
++
+[source, ts]
+----
+formModel: FormGroup;
+----
+
+. Replace constructor's body with the following code:
++
+[source, ts]
+----
+this.products = route.snapshot.data['products'];
+const cartItems = this.cart.getItems();
+
+const controls = this.products.reduce((accumulator, product) => {
+  const control = new FormControl(cartItems[product.id], positive);
+  return Object.assign(accumulator, { [product.id]: control });
+}, {});
+
+this.formModel = new FormGroup(controls);
+this.formModel.valueChanges
+  .debounceTime(200)
+  .subscribe(value => {
+    if (this.formModel.valid) {
+      this.cart.setItems(value);
+    }
+  });
+----
+
+. Add at the end of the `removeItem()` method's body right before closing curly brace following line:
++
+[source, ts]
+----
+this.formModel.removeControl(productId);
+----
+
+. Add custom form control validator function outside of the `CartComponent` class definition:
++
+[source, ts]
+----
+function positive(control: AbstractControl): {[key: string]: boolean} {
+  const valid = Number.isInteger(control.value) && control.value > 0;
+  return valid ? null : { positive: true };
+}
+----
+
+. In the `CartComponent`{nbsp}'s template file add `formGroup` directive to the top-level `<div>` element that binds to the `formModel` property:
++
+[source, html]
+----
+<div class="content"
+     [formGroup]="formModel"> <!--1-->
+  // Rest of the HTML markup...
+</div>
+----
+<1> This line was added.
+
+. Replace `<input>` element that represents the quantity field with the following markup:
++
+[source, html]
+----
+<input mdInput
+       type="number" min="0"
+       placeholder="Quantity"
+       [formControlName]="p.id">
+----
+
+. Launch development web server with the `ng serve` command, open the application in a web browser, add a couple of products to the shopping cart, and enter `http://localhost:4200/cart` URL in the address bar. Now if you modify quantity of any product it's synced with the local storage and you can see the same data after refreshing the page.
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Add form support to the shopping cart page"
+----
 
 == Adding shopping cart icon button to the toolbar
 
+. In _src/app/app.component.ts_ file add import statement for `ShoppingCartService` and inject it into `AppComponent`{nbsp}'s constructor:
++
+[source, ts]
+----
+import { ShoppingCartService } from './shared/services'; // <1>
+
+@Component({...})
+export class AppComponent {
+
+  constructor(
+      private shoppingCartService: ShoppingCartService, // <1>
+      private domSanitizer: DomSanitizer,
+      private iconRegistry: MdIconRegistry) {
+    // Constructor's body...
+  }
+
+  // Rest of the class definition...
+}
+----
+<1> These lines were added.
+
+. Add following getter to the `AppComponent`:
++
+[source, ts]
+----
+get cartTotalQuantity(): number {
+  // null removes attribute from the element, so the badge is not displayed.
+  return this.shoppingCartService.totalQuantity || null;
+}
+----
+
+. In the _src/app/app.component.html_ file add following markup right before closing `</md-toolbar>` tag:
++
+[source, html]
+----
+<a md-icon-button
+   class="ngs-badge"
+   routerLink="/cart"
+   [attr.data-badge]="cartTotalQuantity">
+  <md-icon>shopping_cart</md-icon>
+</a>
+----
+
+. Create _src/styles/_badge.scss_ file with following markup:
++
+[source, scss]
+----
+@import './palette';
+
+// This is a simple way to implement a badge exclusively with CSS.
+.ngs-badge[data-badge] {
+  position: relative;
+
+  &:after {
+    content: attr(data-badge);
+    color: mat-color($ngs-primary, default-contrast);
+    background: mat-color($ngs-foreground, text);
+    border-radius: 50%;
+    line-height: 22px;
+    font-size: 12px;
+    height: 22px;
+    width: 22px;
+    position: absolute;
+    right: -4px;
+    top: -4px;
+  }
+}
+----
+
+. Add following import statement to the _src/styles/styles.scss_ file:
++
+[source, scss]
+----
+@import './badge';
+----
+
+. Now if you open the application, you should see the cart icon in the top right corner with the badge rendered next to the cart that reflects amount of items in the shopping cart:
++
+.Shopping cart icon in the toolbar
+image::fig_05.png[Shopping cart icon in the toolbar,563,role="thumb"]
++
+If you click on the icon it will open the shopping cart page. If you modify products quantity, the number on the badge will be automatically updated.
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+$ git add -A && git commit -m "Add shopping cart button to the toolbar"
+----
 
 ////
 TODO:

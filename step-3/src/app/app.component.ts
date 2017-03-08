@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MdIconRegistry } from '@angular/material';
+import { ShoppingCartService } from './shared/services';
 
 @Component({
   selector: 'ngs-app',
@@ -10,11 +11,17 @@ import { MdIconRegistry } from '@angular/material';
 export class AppComponent {
 
   constructor(
+      private shoppingCartService: ShoppingCartService,
       private domSanitizer: DomSanitizer,
       private iconRegistry: MdIconRegistry) {
     this.registerIcons(new Map<string, string>([
       [ 'logo', 'assets/ngshop-logo.svg' ]
     ]));
+  }
+
+  get cartTotalQuantity(): number {
+    // null removes attribute from the element, so the badge is not displayed.
+    return this.shoppingCartService.totalQuantity || null;
   }
 
   private registerIcons(icons: Map<string, string>) {
