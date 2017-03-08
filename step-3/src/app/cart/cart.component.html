@@ -1,4 +1,4 @@
-<div class="content">
+<div class="content" [formGroup]="formModel">
   <div class="cart-item" *ngFor="let p of products">
 
     <div class="cart-item-image">
@@ -11,7 +11,10 @@
 
     <div class="cart-item-quantity">
       <md-input-container>
-        <input mdInput placeholder="Quantity" [value]="quantity[p.id]">
+        <input mdInput
+               type="number" min="0"
+               placeholder="Quantity"
+               [formControlName]="p.id">
       </md-input-container>
     </div>
 
