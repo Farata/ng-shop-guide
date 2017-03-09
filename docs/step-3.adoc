@@ -118,7 +118,7 @@ export class AppModule {}
 $ git add -A && git commit -m "Add shopping cart service"
 ----
 
-== Generating and configuring routing for CartComponent
+== Generating CartComponent and configuring routing
 
 . Generate component that will represent shopping cart page using following Angular CLI command:
 +
