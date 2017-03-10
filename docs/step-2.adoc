@@ -157,7 +157,7 @@ Re-export `ProductDetailsComponent` from the _src/app/product/index.ts_ file:
 +
 [source, ts]
 ----
-export * from './product-tile/product-tile.component';
+export * from './product-details/product-details.component';
 ----
 +
 Simplify generated import statement for the `ProductDetailsComponent` in the _src/app/app.module.ts_ file:
@@ -361,6 +361,20 @@ import { AfterViewInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MdTabGroup } from '@angular/material';
 ----
+
+. Add `ActivatedRoute` and `Router` the the list of constructor parameters:
++
+[source, ts]
+----
+constructor(
+    private changeDetectorRef: ChangeDetectorRef,
+    private productService: ProductService,
+    private route: ActivatedRoute, // <1>
+    private router: Router) { // <1>
+  // Constructor's body...
+}
+----
+<1> This line was added.
 
 . In `HomeComponent`{nbsp}'s constructor replace `this.products = this.productService.getAll();` line with the following code:
 +
