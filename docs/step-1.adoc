@@ -13,56 +13,53 @@
 
 == Bootstrapping the project
 
-. _Optionally._ If you have yarn installed, specify it as the default Angular CLI package manager
-+
-[source, shell]
-----
-$ ng set --global packageManager=yarn
-----
-
 . Generate new project:
 +
 [source, shell]
 ----
-$ ng new ng-shop --prefix ngs --style scss
+$ ng new ng-shop --prefix ngs --style scss --skip-tests true
 ----
 
-. Add Angular Material to the project with one of the two following commands:
+. Add Angular Material to the project with the following command:
 +
 [source, shell]
 ----
-# EITHER with yarn:
-$ yarn add @angular/material -E           # <1>
-# OR with npm:
-$ npm install @angular/material --save -E # <1>
+$ npm install @angular/material @angular/cdk --save-prod -save-exact # <1>
+# Or shorthand:
+$ npm i @angular/material @angular/cdk -P -E # <1>
 ----
-<1> `-E` denotes _exact_ version of the package with no http://semver.org/[semver] range operators applied.
+<1> `--save-exact` denotes _exact_ version of the package with no http://semver.org/[semver] range operators applied.
 
-. Add a prebuilt Angular Material theme to the _src/styles.css_ file:
+. Add a prebuilt Angular Material theme to the _src/styles.scss_ file:
 +
 [source, scss]
 ----
-@import '~@angular/material/core/theming/prebuilt/indigo-pink.css';
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
 ----
 
-. Add `MaterialModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
+. Add `MdToolbarModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
 +
 [source, ts]
 ----
-import { MaterialModule } from '@angular/material'; // <1>
+import { MdToolbarModule } from '@angular/material';
 
 @NgModule({
   declarations: [ AppComponent ],
   imports: [
     // Other modules...
-    MaterialModule // <2>
+    MdToolbarModule
   ],
   // Providers and bootstrap component...
 })
 export class AppModule {}
 ----
 
-. Add the toolbar component in _src/app/app.component.html_:
+. Replace the content of _src/app/app.component.html_ file with `<md-toolbar>` component:
++
+[source, html]
+----
+<md-toolbar>NgShop</md-toolbar>
+----
 
 . Launch the development server with `ng serve` command and open the app in a Web browser to make sure Angular Material is properly configured. You should be able to see a page with a default grey toolbar with the NgShop text aligned on the left:
 +
@@ -104,7 +101,7 @@ $ touch src/styles/theme.scss
 +
 [source, scss]
 ----
-@import '~@angular/material/core/theming/theming';
+@import '~@angular/material/theming';
 
 // Define the palettes for your theme using the Material Design palettes
 // available in palette.scss (imported above). For each palette, you can
@@ -128,7 +125,6 @@ $ngs-brand-font: 'Abril Fatface', cursive;
 ----
 @import url('https://fonts.googleapis.com/css?family=Abril+Fatface');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-@import '~@angular/material/core/theming/all-theme';
 @import './palette';
 
 // Include the base styles for Angular Material core. We include this here so
@@ -279,7 +275,8 @@ $ mkdir -p src/app/shared/services
 [source, shell]
 ----
 $ ng generate service shared/services/product --spec false # <1>
-# Shorthand: ng g s shared/services/product -spec false
+# Or the shorthand:
+$ ng g s shared/services/product -spec false
 ----
 <1> Note the specified path is relative to the _src/app_ directory.
 +
@@ -300,18 +297,17 @@ export * from './product.service';
 [source, ts]
 ----
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ProductService {
 
-  constructor(private http: Http) {}
+  constructor(private http: HttpClient) {}
 
   getAll(): Observable<Product[]> {
-    return this.http.get('/data/products/all.json')
-      .map(resp => resp.json());
+    return this.http.get<Product[]>('/data/products/all.json');
   }
 }
 
@@ -340,6 +336,23 @@ export class AppModule {}
 ----
 <1> Because of we created _src/app/shared/services/index.ts_ file we can use a shorter path here.
 <2> Add `ProductService` here.
+
+. Add `HttpClientModule` to the imports section of the `AppModule`:
++
+[source, ts]
+----
+import { HttpClientModule } from '@angular/common/http';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    HttpClientModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
 
 . To make sure the service is created properly try injecting into `AppComponent`, invoke `getAll()` method, and print result of the request into the console:
 +
@@ -447,6 +460,26 @@ export class HomeComponent {
 </div>
 ----
 
+. Add `MdToolbarModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import {
+  // Other Angular Material modules...
+  MdGridListModule
+} from '@angular/material';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    MdGridListModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
+
 . Replace content of the _src/app/home/home.component.scss_ file with the following styles:
 +
 [source, scss]
@@ -529,7 +562,6 @@ export class ProductTileComponent {
 +
 [source, scss]
 ----
-@import '~@angular/material/core/style/variables';
 @import '../../../styles/palette';
 
 :host {
@@ -596,7 +628,7 @@ $ git add -A && git commit -m "Add product tiles on the home page"
 ----
 @Component({...})
 export class HomeComponent {
-  private readonly categories = [
+  readonly categories = [
     'all',
     'featured',
     'latest',
@@ -613,6 +645,25 @@ export class HomeComponent {
 <md-tab-group>
   <md-tab *ngFor="let c of categories" [label]="c | uppercase"></md-tab>
 </md-tab-group>
+----
+
+. Add `BrowserAnimationsModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import {
+  BrowserAnimationsModule
+} from '@angular/platform-browser/animations';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    BrowserAnimationsModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
 ----
 
 . Add styles for the tab group in _home.component.scss_ file:
@@ -642,8 +693,7 @@ export class ProductService {
   // Rest of the class definition...
 
   getCategory(category: string): Observable<Product[]> {
-    return this.http.get(`/data/products/${category}.json`)
-      .map(resp => resp.json());
+    return this.http.get<Product[]>(`/data/products/${category}.json`);
   }
 }
 ----
@@ -693,7 +743,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MdIconRegistry } from '@angular/material';
 
 @Component({
-  selector: 'ngs-app',
+  selector: 'ngs-root',
   styleUrls: [ './app.component.scss' ],
   templateUrl: './app.component.html',
 })
@@ -721,6 +771,28 @@ export class AppComponent {
 [source, html]
 ----
 <md-icon class="logo" svgIcon="ngs:logo"></md-icon>
+----
+
+. Add `MdIconModule` and `HttpModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { HttpModule } from '@angular/http';
+import {
+  MdIconModule,
+  // Rest of the Angular Material modules
+} from '@angular/material';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    HttpModule,
+    MdIconModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
 ----
 
 . Commit the changes to save the progress:
@@ -752,7 +824,7 @@ import {
 /**
  * Keeps the callback function that we pass to the MediaQueryList.addListener() and
  * method MediaQueryList.removeListener(). It must be exactly the same instance of
- * the function to succesfully unsubsribe from notifications and prevent memory leaks.
+ * the function to successfully unsubscribe from notifications and prevent memory leaks.
  */
 private mediaQueryListener: MediaQueryListListener;
 
