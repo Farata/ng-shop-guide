@@ -9,10 +9,7 @@ import { Product, ProductService } from '../shared/services';
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnDestroy {
-
-  // TODO: Make array items readonly after upgrading tp TypeScript >2.1
-  // https://blogs.msdn.microsoft.com/typescript/2016/12/07/announcing-typescript-2-1/#partial-readonly-record-and-pick
-  private readonly categories = [
+  readonly categories: Readonly<string[]> = [
     'all',
     'featured',
     'latest',
@@ -22,7 +19,7 @@ export class HomeComponent implements OnDestroy {
   /**
    * Keeps the callback function that we pass to the MediaQueryList.addListener() and
    * method MediaQueryList.removeListener(). It must be exactly the same instance of
-   * the function to succesfully unsubsribe from notifications and prevent memory leaks.
+   * the function to successfully unsubscribe from notifications and prevent memory leaks.
    */
   private mediaQueryListener: MediaQueryListListener;
 
@@ -46,8 +43,9 @@ export class HomeComponent implements OnDestroy {
   products: Observable<Product[]>;
 
   constructor(
-      private changeDetectorRef: ChangeDetectorRef,
-      private productService: ProductService) {
+    private changeDetectorRef: ChangeDetectorRef,
+    private productService: ProductService
+  ) {
     this.products = this.productService.getAll();
 
     // If we pass this.onMediaQueryChange method directly to the
@@ -100,7 +98,7 @@ export class HomeComponent implements OnDestroy {
       // when a MediaQueryListener finishes its work. So we need to trigger the
       // change detector manually.
       //
-      // For zone.js isue see: https://github.com/angular/zone.js/issues/243
+      // For zone.js issue see: https://github.com/angular/zone.js/issues/243
       this.changeDetectorRef.detectChanges();
     }
   }

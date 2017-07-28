@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Abril+Fatface');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-@import '~@angular/material/core/theming/all-theme';
 @import './palette';
 
 // Include the base styles for Angular Material core. We include this here so
@@ -20,12 +19,4 @@ body {
   color: mat-color($ngs-foreground, text);
   font-family: $mat-font-family;
   font-size: rem(1.4);
-}
-
-// TODO: Remove after @angular/material beta.3 is released.
-// Workaround for issue: https://github.com/angular/material2/issues/3323
-.mat-input-container.ng-invalid.ng-touched:not(.mat-focused) {
-  .mat-input-placeholder,
-  .mat-placeholder-required { color: mat-color($ngs-warn); }
-  .mat-input-underline { border-color: mat-color($ngs-warn); }
 }

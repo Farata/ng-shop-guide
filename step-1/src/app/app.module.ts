@@ -1,11 +1,17 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { MaterialModule } from '@angular/material';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  MdIconModule,
+  MdTabsModule,
+  MdToolbarModule,
+  MdGridListModule
+} from '@angular/material';
 
-import { ProductService } from './shared/services';
 import { AppComponent } from './app.component';
+import { ProductService } from './shared/services';
 import { HomeComponent, ProductTileComponent } from './home';
 
 @NgModule({
@@ -16,15 +22,15 @@ import { HomeComponent, ProductTileComponent } from './home';
   ],
   imports: [
     BrowserModule,
-    FormsModule,
+    BrowserAnimationsModule,
     HttpModule,
-    MaterialModule
+    HttpClientModule,
+    MdGridListModule,
+    MdToolbarModule,
+    MdTabsModule,
+    MdIconModule
   ],
-  providers: [
-    ProductService
-  ],
-  bootstrap: [
-    AppComponent
-  ]
+  providers: [ ProductService ],
+  bootstrap: [ AppComponent ]
 })
 export class AppModule {}
