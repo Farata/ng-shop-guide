@@ -765,6 +765,8 @@ export class AppComponent {
   }
 }
 ----
++
+By default Angular imposes strict security rules and doesn't allow using arbitrary strings as values for image source URLs. `DomSanitizer` allows us to bypass these rules for values we know are safe.
 
 . In the _app.component.html_ file replace `<img>` element with `MdIcon` component:
 +
