@@ -7,9 +7,7 @@ import { Product } from '../../shared/services';
   templateUrl: './product-details.component.html'
 })
 export class ProductDetailsComponent {
-
   @Input() product: Product;
-
   quantity: number;
 
   addItems() {

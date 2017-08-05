@@ -95,8 +95,8 @@ export class ProductService {
   // Rest of the class methods...
 
   getProductById(productId: string): Observable<Product> {
-    return this.http.get('/data/products/all.json')
-      .map(resp => resp.json().find(p => p.id === productId));
+    return this.http.get<Product[]>('/data/products/all.json')
+      .map(products => products.find(p => p.id === productId));
   }
 }
 ----
@@ -226,11 +226,34 @@ export class ProductDetailsComponent {
 </div>
 ----
 
+. Add `MdButtonModule`, `MdSelectModule` and `FormsModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { FormsModule } from '@angular/forms';
+import {
+  // Other Angular Material modules
+  MdButtonModule,
+  MdSelectModule
+} from '@angular/material';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    FormsModule,
+    MdButtonModule,
+    MdSelectModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
+
 . Replace content of the _src/app/product/product-details/product-details.component.scss_ file with the following styles:
 +
 [source, scss]
 ----
-@import '~@angular/material/core/style/variables';
 @import '../../../styles/palette';
 
 :host {
@@ -294,6 +317,13 @@ export class ProductDetailsComponent {
     color: mat-color($ngs-foreground, secondary-text);
   }
 }
+----
+
+. Replace content of the _src/app/product/product.component.html_ file with the following HTML markup:
++
+[source, html]
+----
+<ngs-product-details [product]="product"></ngs-product-details>
 ----
 
 . Start development web server with `ng serve` command and open `http://localhost:4200/products/-KaXxv2xD9WaIqHMsHYM` URL in a web browser. You should see the following:
@@ -374,7 +404,7 @@ constructor(
   // Constructor's body...
 }
 ----
-<1> This line was added.
+<1> These lines were added.
 
 . In `HomeComponent`{nbsp}'s constructor replace `this.products = this.productService.getAll();` line with the following code:
 +

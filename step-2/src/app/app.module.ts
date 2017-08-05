@@ -2,23 +2,25 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { MaterialModule } from '@angular/material';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import {
+  MdButtonModule,
+  MdIconModule,
+  MdSelectModule,
+  MdTabsModule,
+  MdToolbarModule,
+  MdGridListModule
+} from '@angular/material';
 
-import { ProductService } from './shared/services';
 import { routes } from './app.routing';
 import { AppComponent } from './app.component';
+import { ProductService } from './shared/services';
 import { HomeComponent, ProductTileComponent } from './home';
 import { ProductComponent, ProductDetailsComponent } from './product';
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule,
-    RouterModule.forRoot(routes),
-    MaterialModule
-  ],
   declarations: [
     AppComponent,
     HomeComponent,
@@ -26,11 +28,22 @@ import { ProductComponent, ProductDetailsComponent } from './product';
     ProductComponent,
     ProductDetailsComponent
   ],
-  providers: [
-    ProductService
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    HttpModule,
+    HttpClientModule,
+    RouterModule.forRoot(routes),
+
+    MdButtonModule,
+    MdGridListModule,
+    MdSelectModule,
+    MdToolbarModule,
+    MdTabsModule,
+    MdIconModule
   ],
-  bootstrap: [
-    AppComponent
-  ]
+  providers: [ ProductService ],
+  bootstrap: [ AppComponent ]
 })
 export class AppModule {}

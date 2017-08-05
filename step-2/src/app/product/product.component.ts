@@ -14,7 +14,6 @@ import { Product, ProductService } from '../shared/services';
   templateUrl: './product.component.html'
 })
 export class ProductComponent {
-
   product: Product;
 
   constructor(productService: ProductService, route: ActivatedRoute) {
@@ -25,5 +24,4 @@ export class ProductComponent {
       .mergeMap(({productId}) => productService.getProductById(productId))
       .subscribe(product => this.product = product);
   }
-
 }
