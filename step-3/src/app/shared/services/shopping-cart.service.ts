@@ -23,7 +23,7 @@ export class ShoppingCartService {
 
   getItems(): ShoppingCartState {
     // Return a copy of the shopping cart's state.
-    return Object.assign({}, this.state);
+    return {...this.state};
   }
 
   setItems(items: ShoppingCartState): void {

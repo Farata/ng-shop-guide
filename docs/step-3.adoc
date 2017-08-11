@@ -56,7 +56,7 @@ export class ShoppingCartService {
 
   getItems(): ShoppingCartState {
     // Return a copy of the shopping cart's state.
-    return Object.assign({}, this.state);
+    return {...this.state};
   }
 
   setItems(items: ShoppingCartState): void {
@@ -103,7 +103,7 @@ import { ProductService, ShoppingCartService } from './shared/services'; // <1>
 
 @NgModule({
   // Module declarations, imports go here...
-  providers: [ ProductService ], // <1>
+  providers: [ ProductService, ShoppingCartService ], // <2>
   bootstrap: [ AppComponent ]
 })
 export class AppModule {}
@@ -141,7 +141,8 @@ ng generate class cart/cart.resolver --spec false
 import { Injectable } from '@angular/core';
 import { Resolve } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
 
 import {
   Product,
@@ -165,7 +166,7 @@ export class CartResolver implements Resolve<Product[]> {
 
     // Create an observable that emits the result when all the requests
     // successfully complete.
-    return requests.length ? Observable.forkJoin(requests) : Observable.of([]);
+    return requests.length ? forkJoin(requests) : of([]);
   }
 }
 ----
@@ -306,6 +307,26 @@ export class CartComponent {
 </div>
 ----
 
+. Add `MdInputModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import {
+  // Other Angular Material modules
+  MdInputModule
+} from '@angular/material';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    MdInputModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
+
 . Replace content of the _src/app/cart/cart.component.scss_ file with the following styles:
 +
 [source, scss]
@@ -439,6 +460,23 @@ $ git add -A && git commit -m "Add shopping cart UI"
 ----
 
 == Adding form support
+
+. Add `ReactiveFormsModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    ReactiveFormsModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
 
 . In _src/app/cart/cart.component.ts_ add following import statements:
 +

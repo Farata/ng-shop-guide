@@ -1,8 +1,3 @@
-<!--
-  TODO: Consider MdTabNavBar as soon as following issues are resolved:
-    * https://github.com/angular/material2/issues/1967
-    * https://github.com/angular/material2/issues/2177
--->
 <md-tab-group (selectedIndexChange)="onTabChange($event)">
   <md-tab *ngFor="let c of categories" [label]="c | uppercase"></md-tab>
 </md-tab-group>

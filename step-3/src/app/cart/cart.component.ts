@@ -1,8 +1,7 @@
+import 'rxjs/add/operator/debounceTime';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import 'rxjs/add/operator/debounceTime';
-
 import { Product, ShoppingCartService } from '../shared/services';
 
 @Component({
