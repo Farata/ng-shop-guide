@@ -4,7 +4,7 @@ import { MdIconRegistry } from '@angular/material';
 import { ShoppingCartService } from './shared/services';
 
 @Component({
-  selector: 'ngs-app',
+  selector: 'ngs-root',
   styleUrls: [ './app.component.scss' ],
   templateUrl: './app.component.html',
 })

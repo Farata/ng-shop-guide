@@ -49,10 +49,6 @@ export const routes: Route[] = [
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-// tslint:disable-next-line:max-line-length
-const EMAIL_REGEXP =
-  /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
-
 @Component({
   selector: 'ngs-checkout',
   styleUrls: [ './checkout.component.scss' ],
@@ -75,7 +71,7 @@ export class CheckoutComponent {
 
     this.formModel = fb.group({
       account: fb.group({
-        email: [, [Validators.required, Validators.pattern(EMAIL_REGEXP)]],
+        email: [, [Validators.required, Validators.email]],
         phone: [, Validators.required]
       }),
       address: fb.group({
@@ -356,7 +352,7 @@ md-hint.error {
 }
 ----
 
-. Start development web server with `ng serve` command, open the application in a web browser, enter `http://localhost:8080` URL in the address bar. You should see following checkout form:
+. Start development web server with `ng serve` command, open the application in a web browser, enter `http://localhost:8080/checkout` URL in the address bar. You should see following checkout form:
 +
 .Checkout form
 image::fig_01.png[Checkout form,1034,role="thumb"]

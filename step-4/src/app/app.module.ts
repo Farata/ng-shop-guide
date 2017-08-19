@@ -2,8 +2,18 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { MaterialModule } from '@angular/material';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import {
+  MdButtonModule,
+  MdIconModule,
+  MdInputModule,
+  MdSelectModule,
+  MdTabsModule,
+  MdToolbarModule,
+  MdGridListModule
+} from '@angular/material';
 
 import { ProductService, ShoppingCartService } from './shared/services';
 import { routes } from './app.routing';
@@ -14,22 +24,31 @@ import { ProductComponent, ProductDetailsComponent } from './product';
 import { CheckoutComponent } from './checkout/checkout.component';
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule,
-    ReactiveFormsModule,
-    RouterModule.forRoot(routes),
-    MaterialModule
-  ],
   declarations: [
     AppComponent,
     CartComponent,
-    CheckoutComponent,
     HomeComponent,
     ProductComponent,
     ProductTileComponent,
     ProductDetailsComponent,
+    CheckoutComponent,
+  ],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    HttpModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot(routes),
+
+    MdButtonModule,
+    MdGridListModule,
+    MdSelectModule,
+    MdToolbarModule,
+    MdTabsModule,
+    MdIconModule,
+    MdInputModule
   ],
   providers: [
     CartResolver,

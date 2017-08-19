@@ -1,9 +1,9 @@
 import { Route } from '@angular/router';
 
 import { CartComponent, CartResolver } from './cart';
+import { CheckoutComponent } from './checkout';
 import { HomeComponent } from './home';
 import { ProductComponent } from './product';
-import { CheckoutComponent } from './checkout';
 
 export const routes: Route[] = [
   { path: '', pathMatch: 'full', redirectTo: 'categories' },

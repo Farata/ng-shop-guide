@@ -1,3 +1,4 @@
+import 'rxjs/add/operator/switchMap';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -18,10 +19,7 @@ import { Product, ProductService } from '../shared/services';
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
-
-  // TODO: Make array items readonly after upgrading tp TypeScript >2.1
-  // https://blogs.msdn.microsoft.com/typescript/2016/12/07/announcing-typescript-2-1/#partial-readonly-record-and-pick
-  private readonly categories = [
+  readonly categories: Readonly<string[]> = [
     'all',
     'featured',
     'latest',
@@ -31,7 +29,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   /**
    * Keeps the callback function that we pass to the MediaQueryList.addListener() and
    * method MediaQueryList.removeListener(). It must be exactly the same instance of
-   * the function to succesfully unsubsribe from notifications and prevent memory leaks.
+   * the function to successfully unsubscribe from notifications and prevent memory leaks.
    */
   private mediaQueryListener: MediaQueryListListener;
 
@@ -50,18 +48,18 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     [matchMedia('(min-width: 1281px)'),                        'large']
   ]);
 
+  @ViewChild(MdTabGroup) mdTabGroup: MdTabGroup;
+
   columns: number;
 
   products: Observable<Product[]>;
 
-  @ViewChild(MdTabGroup) mdTabGroup: MdTabGroup;
-
   constructor(
-      private changeDetectorRef: ChangeDetectorRef,
-      private productService: ProductService,
-      private route: ActivatedRoute,
-      private router: Router) {
-
+    private changeDetectorRef: ChangeDetectorRef,
+    private productService: ProductService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.products = this.route.params
       // Parameters list below uses the ES6 feature called destructuring.
       .switchMap(({category}) => {
@@ -90,14 +88,14 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  ngAfterViewInit() {
-    const category = this.route.snapshot.params['category'];
-    this.mdTabGroup.selectedIndex = this.categories.indexOf(category);
-  }
-
   onTabChange(tabIndex: number) {
     const category = this.categories[tabIndex];
     this.router.navigate([category], { relativeTo: this.route.parent });
+  }
+
+  ngAfterViewInit() {
+    const category = this.route.snapshot.params['category'];
+    this.mdTabGroup.selectedIndex = this.categories.indexOf(category);
   }
 
   ngOnDestroy() {
@@ -125,7 +123,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       // when a MediaQueryListener finishes its work. So we need to trigger the
       // change detector manually.
       //
-      // For zone.js isue see: https://github.com/angular/zone.js/issues/243
+      // For zone.js issue see: https://github.com/angular/zone.js/issues/243
       this.changeDetectorRef.detectChanges();
     }
   }

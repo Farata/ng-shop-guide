@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Resolve } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
 
 import {
   Product,
@@ -25,6 +26,6 @@ export class CartResolver implements Resolve<Product[]> {
 
     // Create an observable that emits the result when all the requests
     // successfully complete.
-    return requests.length ? Observable.forkJoin(requests) : Observable.of([]);
+    return requests.length ? forkJoin(requests) : of([]);
   }
 }

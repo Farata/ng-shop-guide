@@ -1,9 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-// tslint:disable-next-line:max-line-length
-const EMAIL_REGEXP =
-  /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 
 @Component({
   selector: 'ngs-checkout',
@@ -27,7 +24,7 @@ export class CheckoutComponent {
 
     this.formModel = fb.group({
       account: fb.group({
-        email: [, [Validators.required, Validators.pattern(EMAIL_REGEXP)]],
+        email: [, [Validators.required, Validators.email]],
         phone: [, Validators.required]
       }),
       address: fb.group({
@@ -51,7 +48,7 @@ export class CheckoutComponent {
 
   hasError(errorCode: string, path: string[]) {
     return this.formModel.get(path).touched
-      && this.formModel.hasError(errorCode, path);
+        && this.formModel.hasError(errorCode, path);
   }
 
   placeOrder() {
