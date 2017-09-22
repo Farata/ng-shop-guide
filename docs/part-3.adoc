@@ -1,0 +1,646 @@
+= Part 3. Developing shopping cart.
+:experimental:
+:icons: font
+:idprefix:
+:idseparator: -
+:imagesdir: part-3
+:nbsp:
+:sectanchors:
+:sectlinks:
+:sectnums:
+:source-highlighter: prettify
+:toc:
+
+== Implementing ShoppingCartService
+
+. Generate new service with following Angular CLI command:
++
+[source, shell]
+----
+ng g s shared/services/shopping-cart --spec false
+----
++
+We'll re-use the `ShoppingCardService` in a couple of components.
+
+. Replace the content of the _shopping-cart.service.ts_ file with the following:
++
+[source, ts]
+----
+import { Injectable } from '@angular/core';
+
+export interface ShoppingCartState {
+  [key: string]: number;  // product ID should be a string, and quantity - a number
+}
+
+const SHOPPING_CART_KEY = 'ngs_shopping_cart';  // for local storage
+
+@Injectable()
+export class ShoppingCartService {
+
+  private state: ShoppingCartState;
+
+  constructor() {
+    this.state = this.loadState() || {};  // load from local storage
+  }
+
+    // Load state from local storage
+  private loadState(): ShoppingCartState {
+    return JSON.parse(localStorage.getItem(SHOPPING_CART_KEY));
+  }
+
+  // Save state in local storage
+  private saveState(): void {
+    localStorage.setItem(SHOPPING_CART_KEY, JSON.stringify(this.state));
+  }
+
+  get totalQuantity(): number {
+    return Object.keys(this.state).reduce((total, productId) => {
+      return total + this.state[productId];
+    }, 0);
+  }
+
+  getItems(): ShoppingCartState {
+    // Clone and return a copy of the shopping cart state
+    return {...this.state};
+  }
+
+  // Initialize the shopping card with the values
+  setItems(items: ShoppingCartState): void {
+    this.state = items;  // may come from the server
+    this.saveState();
+  }
+
+  // Add a product to the cart or update its qty 
+  addItem(productId: string, quantity: number): void {
+    if (quantity > 0) {
+      this.state[productId] = (this.state[productId] || 0) + quantity;
+      this.saveState();
+    }
+  }
+
+  removeItem(productId: string): void {
+    delete this.state[productId];
+    this.saveState();
+  }
+
+  // Update the quantity in the state obj or remove it
+  setQuantity(productId: string, quantity: number): void {
+    if (quantity > 0) {
+      this.state[productId] = quantity;
+      this.saveState();
+    } else {
+      this.removeItem(productId);
+    }
+  }
+}
+----
+
+. Add `ShoppingCartService` to the list of providers in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { ProductService, ShoppingCartService } from './shared/services'; // <1>
+
+@NgModule({
+  // Module declarations, imports go here...
+  providers: [ ProductService, ShoppingCartService ], // <2>
+  bootstrap: [ AppComponent ]
+})
+export class AppModule {}
+----
+<1> Add service to the import statement. Note that we use a short path in import
+<2> Add `ShoppingCartService` to the list of `AppModule` providers.
+
+. Re-export `ShoppingCartService` and `ShoppingCartState` from _src/app/shared/services/index.ts_ file by adding the following line:
++
+[source, ts]
+----
+export { ShoppingCartService, ShoppingCartState } from './shopping-cart/shopping-cart.service';
+----
+
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add shopping cart service"
+----
+
+== Generating CartComponent and configuring routing
+
+. Generate component that will represent shopping cart page using following Angular CLI command:
++
+[source, shell]
+----
+ng g c cart --spec false
+----
+
+. Generate a resolve guard - a class that will resolve the required data before the user can navigate to the shopping cart component:
++
+[source, ts]
+----
+ng g class cart/cart-resolver --spec false
+----
+
+. Replace content of the _src/app/cart/cart.resolver.ts_ file with following:
++
+[source, ts]
+----
+import { Injectable } from '@angular/core';
+import { Resolve } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { of } from 'rxjs/observable/of';
+import {  Product, ProductService, ShoppingCartService } from '../shared/services';
+
+@Injectable()
+export class CartResolver implements Resolve<Product[]> {
+
+  constructor(private productService: ProductService,
+              private shoppingCartService: ShoppingCartService) {}
+
+  resolve(): Observable<Product[]> {
+    // Get IDs of all products in the shopping cart
+    const productsInCart = Object.keys(this.shoppingCartService.getItems());
+
+    // Create an array of lazy HTTP requests returned by getProductById(). Each request will fetch one product.
+    const requests = productsInCart.map(productId =>
+        this.productService.getProductById(productId));
+
+    return requests.length ?
+      forkJoin(requests) :  // Spawn parallel requests and emit last value from each
+      of([]);               // Return an empty observable
+  }
+}
+----
+
+. Create _index.ts_ file inside _src/app/cart_ directory with the following code:
++
+[source, ts]
+----
+export * from './cart.component';
+export * from './cart-resolver';
+----
+
+. In _src/app/app.routing.ts_ file add import statements for `CartComponent` and `CartResolver` classes, and add one more path configuration for the shopping cart page:
++
+[source, ts]
+----
+import { CartComponent, CartResolver } from './cart';
+
+export const routes: Route[] = [
+  // Rest of the routing configuration...
+  { path: 'cart', component: CartComponent,
+           resolve: { products: CartResolver}
+  }
+];
+----
+
+. In _src/app/app.module.ts_,  add an import statement for `CartResolver` and add it to the providers list of `AppModule`:
++
+[source, ts]
+----
+import { CartComponent, CartResolver } from './cart';
+
+@NgModule({
+  // Module imports, declarations...
+  providers: [
+    CartResolver,
+    ...
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule {}
+----
+
+. Start the application with `ng serve` command, open a web browser and enter the URL `http://localhost:4200/cart`. You should see the generated cart component:
++
+.Shopping cart page
+image::fig_01.png[Shopping cart page,424,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Generate cart component, add resolver, configure router"
+----
+
+== Implementing CartComponent
+
+. Replace the content of _src/app/cart/cart.component.ts_ with the following:
++
+[source, ts]
+----
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Product, ShoppingCartService, ShoppingCartState } from '../shared/services';
+
+@Component({
+  selector: 'ngs-cart',
+  styleUrls: [ './cart.component.scss' ],
+  templateUrl: './cart.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CartComponent {
+
+  products: Product[];         // products are populated by the resolver
+  quantity: ShoppingCartState; // quantity per product
+
+  constructor(private cart: ShoppingCartService, route: ActivatedRoute) {
+    this.products = route.snapshot.data['products'];
+    this.quantity = this.cart.getItems();
+  }
+
+  get total() {
+    const cartItems = this.cart.getItems();
+    return Object.keys(cartItems).reduce((total, productId) => {
+      const product = this.products.find(p => p.id === productId);
+      const qty = cartItems[productId];
+      return total + product.price * qty;
+    }, 0);
+  }
+
+  removeItem(productId: string) {
+    const index = this.products.findIndex(p => p.id === productId);
+    this.products.splice(index, 1);
+    this.cart.removeItem(productId);
+  }
+}
+----
+
+. Replace the content of _src/app/cart/cart.component.html_ with the following HTML markup:
++
+[source, html]
+----
+<div class="content">
+  <div class="cart-item" *ngFor="let p of products">
+
+    <div class="cart-item-image">
+      <img [attr.src]="p.imageUrl" [attr.alt]="p.title">
+    </div>
+
+    <div class="cart-item-title">
+      <a [routerLink]="['/products', p.id]">{{ p.title }}</a>
+    </div>
+
+    <div class="cart-item-quantity">
+      <md-input-container>
+        <input mdInput placeholder="Quantity" [value]="quantity[p.id]">
+      </md-input-container>
+    </div>
+
+    <div class="cart-item-price">{{ p.price | currency:'USD':true }}</div>
+
+    <div class="cart-item-remove">
+      <button md-icon-button (click)="removeItem(p.id)">
+        <md-icon>close</md-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="cart-actions">
+    Total:
+    <div class="total">{{ total | currency:'USD':true }}</div>
+    <a md-raised-button>CHECKOUT</a>
+  </div>
+</div>
+----
+
+. Add `MdInputModule` to the imports section of the `@NgModule` in _src/app/app.module.ts_:
++
+[source, ts]
+----
+import {
+  // Other Angular Material modules
+  MdInputModule
+} from '@angular/material';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    ...
+    MdInputModule
+  ],
+  ...
+})
+export class AppModule {}
+----
+
+. Replace the content of _src/app/cart/cart.component.scss_ with the following styles:
++
+[source, scss]
+----
+@import '../../styles/palette';
+
+:host {
+  display: block;
+  padding: 64px 16px 16px;
+}
+
+.content {
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  color: mat-color($ngs-foreground, secondary-text);
+  margin-bottom: 24px;
+}
+
+.cart-item-image {
+  height: 72px;
+  width: 72px;
+
+  img {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.cart-item-title {
+  flex: 2;
+  font-weight: 500;
+  margin-left: 24px;
+
+  a {
+    color: mat-color($ngs-foreground, text);
+    text-decoration: none;
+  }
+}
+
+.cart-item-quantity {
+  flex: 1 1 70px;
+  margin-right: 24px;
+
+  md-input-container {
+    width: 100%;
+    max-width: 100px;
+  }
+}
+
+.cart-item-price {
+  width: 40px;
+}
+
+.cart-item-remove {
+  margin-left: 48px;
+
+  [md-icon-button] {
+    line-height: 34px;
+    height: 34px;
+    width: 34px;
+  }
+
+  md-icon {
+    line-height: 18px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+}
+
+.cart-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-weight: 500;
+
+  .total {
+    margin: 0 64px 0 24px;
+  }
+}
+----
+
+. Now the shopping cart is capable of displaying products, but we need a way to add products to the cart. Let's implement the code for the Add Items button in the product details component. Add the import statement for the `ShoppingCartService` and inject it into the component's constructor:
++
+[source, ts]
+----
+import { Product, ShoppingCartService } from '../../shared/services';
+
+@Component({...})
+export class ProductDetailsComponent {
+  constructor(private shoppingCartService: ShoppingCartService) {}
+  // Rest of the class declaration...
+}
+----
+
+. Replace `addItems()` method implementation with the following code:
++
+[source, ts]
+----
+addItems() {
+  this.shoppingCartService.addItem(this.product.id, this.quantity);
+  this.quantity = null; // Reset selected number of items.
+}
+----
+
+. Launch the development web server with `ng serve`, select a product, and in the product detail page add one or more products to the shopping cart. We don't have the shopping cart icon on the top of the page yet, so just enter `http://localhost:4200/cart` in the browser to navigate to the shopping cart component. You should see a page that looks like this (if you selected the vintage radio):
++
+.Shopping cart with one item
+image::fig_02.png[Shopping cart with one item,741,role="thumb"]
++
+Open _Developer Tools_ => _Application_ => _Local Storage_, you should be able to see a local storage entry that represents the cart state:
++
+.Shopping cart state serialized in the local storage
+image::fig_03.png[Shopping cart state serialized in the local storage,1105,role="thumb"]
++
+If you click on the remove button next to the product's price, the product should disappear both from the page and from the local storage. The total amount should be $0.00:
++
+.Empty shopping cart
+image::fig_04.gif[Empty shopping cart,623,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add shopping cart UI"
+----
+
+== Adding form support
+
+. Add `ReactiveFormsModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    // Other modules...
+    ReactiveFormsModule
+  ],
+  // Providers and bootstrap component...
+})
+export class AppModule {}
+----
+
+. In _src/app/cart/cart.component.ts_ add following import statements:
++
+[source, ts]
+----
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import 'rxjs/add/operator/debounceTime';
+----
+
+. Replace the line `quantity: ShoppingCartState`  with the following one:
++
+[source, ts]
+----
+formModel: FormGroup;
+----
+
+. Add the custom validator function outside of the `CartComponent` class definition. This function will ensure that only positive  quantities are entered:
++
+[source, ts]
+----
+function positive(control: AbstractControl): {[key: string]: boolean} {
+  const valid = Number.isInteger(control.value) && control.value > 0;
+  return valid ? null : { positive: true };
+}
+----
+
+. Replace constructor's body with the following code:
++
+[source, ts]
+----
+this.products = route.snapshot.data['products'];
+const cartItems = this.cart.getItems();
+
+const controls = this.products.reduce((accumulator, product) => {
+  const control = new FormControl(cartItems[product.id], positive);
+  return Object.assign(accumulator, { [product.id]: control });
+}, {});
+
+this.formModel = new FormGroup(controls);
+this.formModel.valueChanges
+  .debounceTime(200)
+  .subscribe(value => {
+    if (this.formModel.valid) {
+      this.cart.setItems(value);
+    }
+  });
+----
+
+. At the end of the `removeItem()` method's body add the following line:
++
+[source, ts]
+----
+this.formModel.removeControl(productId);
+----
+
+. In _cart.component.html_, add `formGroup` directive to the top-level `<div>` element that binds to the `formModel` property:
++
+[source, html]
+----
+<div class="content"
+     [formGroup]="formModel"> <!--1-->
+  // Rest of the HTML markup...
+</div>
+----
+<1> This line should be added
+
+. In _cart.component.html_, replace the `<input>` element that represents the quantity field with the following markup:
++
+[source, html]
+----
+<input mdInput
+       type="number" min="0"
+       placeholder="Quantity"
+       [formControlName]="p.id">
+----
+
+. Launch development web server with the `ng serve` command, open the application in a web browser, add a couple of products to the shopping cart, and enter `http://localhost:4200/cart` in the address bar. Now if you modify quantity of any product it's synced with the local storage and even after refreshing the page you'll see the same content in the shopping cart.
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add form support to the shopping cart page"
+----
+
+== Adding the shopping cart icon to the toolbar
+
+. In _src/app/app.component.ts_, add the import statement for `ShoppingCartService` and inject it into `AppComponent` constructor:
++
+[source, ts]
+----
+import { ShoppingCartService } from './shared/services'; 
+
+@Component({...})
+export class AppComponent {
+
+  constructor(private shoppingCartService: ShoppingCartService) {}
+}
+----
+
+. Add following getter to the `AppComponent`:
++
+[source, ts]
+----
+get cartTotalQuantity(): number {
+  // null removes attribute from the element, so the badge is not displayed.
+  return this.shoppingCartService.totalQuantity || null;
+}
+----
+
+. In the _src/app/app.component.html_ file add following markup right before closing `</md-toolbar>` tag:
++
+[source, html]
+----
+<a md-icon-button
+   class="ngs-badge"
+   routerLink="/cart"
+   [attr.data-badge]="cartTotalQuantity">
+  <md-icon>shopping_cart</md-icon>
+</a>
+----
+
+. Create _src/styles/_badge.scss_ file with following markup:
++
+[source, scss]
+----
+@import './palette';
+
+// This is a simple way to implement a badge exclusively with CSS.
+.ngs-badge[data-badge] {
+  position: relative;
+
+  &:after {
+    content: attr(data-badge);
+    color: mat-color($ngs-primary, default-contrast);
+    background: mat-color($ngs-foreground, text);
+    border-radius: 50%;
+    line-height: 22px;
+    font-size: 12px;
+    height: 22px;
+    width: 22px;
+    position: absolute;
+    right: -4px;
+    top: -4px;
+  }
+}
+----
+
+. Add following import statement to the _src/styles/styles.scss_ file:
++
+[source, scss]
+----
+@import './badge';
+----
+
+. Now if you open the application (you may need to restart the serve), you should see the cart icon in the top right corner with the badge rendered next to the cart that reflects amount of items in the shopping cart:
++
+.Shopping cart icon in the toolbar
+image::fig_05.png[Shopping cart icon in the toolbar,563,role="thumb"]
++
+If you click on the icon it will open the shopping cart page. If you modify products quantity, the number on the badge will be automatically updated.
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add shopping cart button to the toolbar"
+----

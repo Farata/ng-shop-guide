@@ -1,0 +1,701 @@
+= Part 1. Developing the home view of ng-shop
+:experimental:
+:icons: font
+:idprefix:
+:idseparator: -
+:imagesdir: part-1
+:nbsp:
+:sectanchors:
+:sectlinks:
+:sectnums:
+:source-highlighter: prettify
+:toc:
+
+== Creating a new project with Angular Material support
+
+This is the first part of the instructions for building the ngShop app from scratch. You have to have Node 8.1 or newer (see nodejs.org/downloads) and Angular CLI 1.4 or newer installed.
+
+. Generate a new project:
++
+[source, shell]
+----
+ng new ng-shop --prefix ngs --style scss --skip-tests true
+----
++
+By default Angular CLI generates a local Git repo in your project
+
+. cd to the ng-shop directory
+
+. Add Angular Material to the project with the following command:
++
+[source, shell]
+----
+npm install @angular/material @angular/cdk --save-prod -save-exact 
+----
++
+`--save-exact` denotes _exact_ version of the package with no http://semver.org/[semver] range operators applied.
++
+`--save-prod` replaces `--save` in npm 5 or later
++ 
+We didn't install `@angular/animations` manually, because Angular CLI did it for us
+
+. Open the generated project in your IDE
+
+. Add a prebuilt Angular Material theme to the _src/styles.scss_ file:
++
+[source, scss]
+----
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+----
+
+. Import `MdToolbarModule` and add it to the imports section of the `@NgModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { MdToolbarModule } from '@angular/material';
+
+@NgModule({
+  ...
+  imports: [
+    ...
+    MdToolbarModule
+  ]
+  ...
+})
+export class AppModule {}
+----
+
+. Replace the content of the generated _src/app/app.component.html_ file with the `<md-toolbar>` component:
++
+[source, html]
+----
+<md-toolbar>NgShop</md-toolbar>
+----
+
+. Launch the development server and open the app in the browser with the `ng serve -o` command to make sure Angular Material is properly configured. You'll see a page with a default grey toolbar with the NgShop text aligned on the left:
++
+.Angular Material Toolbar
+image::fig_01.png[Toolbar,361,203,role="thumb"]
+
+. In a separate Terminal window, commit the current code to your local Git repo:
++
+[source, shell]
+----
+git add -A && git commit -m "Add Angular Material package"
+----
+
+== Configuring a custom Angular Material theme
+
+. Create the directory _src/styles_:
+
+. Move _src/styles.scss_ file to the just created directory:
+
+. Create two empty files __palette.scss_ and _theme.scss_ in the _src/styles_ folder. 
+
+. Copy/paste the styles below into the __palette.scss_ file:
++
+[source, scss]
+----
+@import '~@angular/material/theming';
+
+// Define the palettes for your theme using the Material Design palettes
+// available in palette.scss (imported above). For each palette, you can
+// optionally specify a default, lighter, and darker hue.
+$ngs-primary: mat-palette($mat-cyan);
+$ngs-accent:  mat-palette($mat-cyan, A200, A100, A400);
+$ngs-warn:    mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$ngs-theme: mat-light-theme($ngs-primary, $ngs-accent, $ngs-warn);
+
+$ngs-background: map-get($ngs-theme, background);
+$ngs-foreground: map-get($ngs-theme, foreground);
+
+$ngs-brand-font: 'Abril Fatface', cursive;
+----
+
+. Copy/paste the styles below to the _theme.scss_ file:
++
+[source, scss]
+----
+@import url('https://fonts.googleapis.com/css?family=Abril+Fatface');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import './palette';
+
+// Include the base styles for Angular Material core. We include this here so
+// you only have to load a single CSS file for Angular Material in your app.
+@include mat-core();
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+@include angular-material-theme($ngs-theme);
+
+md-ink-bar {
+  background-color: mat-color($ngs-accent);
+}
+
+body {
+  color: mat-color($ngs-foreground, text);
+  font-family: $mat-font-family;
+  font-size: rem(1.4);
+}
+----
+
+. Add the following to __styles.scss__ :
++
+[source, scss]
+----
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+----
+
+. Change value of the `apps[0].styles` array in the _.angular-cli.json_ file to list _styles.scss_ and _theme.scss_:
++
+[source, json]
+----
+"styles": [
+  "styles/styles.scss",
+  "styles/theme.scss"
+]
+----
+
+. Restart development web server with kbd:[Ctrl+C] and run `ng serve` so the updated _.angular-cli.json_ file is in use.
+
+. To check that the theme is properly configured, set attribute `color="primary"` for the `<md-toolbar>` element in the _src/app/app.component.html_ file. Open the app in a web browser you should see the toolbar with cyan background:
++
+.Toolbar with cyan background
+image::fig_02.png[Toolbar with cyan background,417,role="thumb"]
++
+Now remove `color="primary"` because we want the toolbar background color to be white. The next three steps will finalize the look and feel of our toolbar.
+
+. Copy _ngshop-logo.svg_ image from the handouts to the _src/assets_ folder:
+
+. Replace content of the _src/app/app.component.scss_ files with following:
++
+[source, scss]
+----
+@import '../styles/palette';
+
+//  @debug $ngs-background;  // to see the colors during scss compile 
+
+md-toolbar {
+
+  background: mat-color($ngs-background, card);
+
+  // Add a bottom border. On the home page the tabs are rendered on top of the
+  // shadow this makes the header look like a single component. On other pages, the
+  // shadow is visible, so it separates header from the content.
+  box-shadow: 0 1px mat-color($ngs-foreground, divider);
+}
+
+.fill {
+  flex: 1 1 auto;
+}
+
+.logo {
+  height: 36px;
+  width: auto;
+}
+----
++
+You can read about the flex box here: http://cssreference.io
+
+. Replace content of the _src/app/app.component.html_ file with the following HTML markup:
++
+[source, html]
+----
+<md-toolbar>
+  <span class="fill"></span>
+  <img class="logo" src="assets/ngshop-logo.svg" alt="NgShop Logo">
+  <span class="fill"></span>
+</md-toolbar>
+----
++
+Using the class `fill` ensures that the logo is centered. After applying the changes to `AppComponent` the application should look like this:
++
+.Complete toolbar
+image::fig_03.png[Complete toolbar,489,role="thumb"]
+
+. Commit the changes to Git to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add custom Angular Material theme and complete the toolbar"
+----
+
+== Adding the static products data
+
+. Copy the _data_ directory from the part-1 project to the _src_ directory of your ng-shop project:
+
+. Add `"data"` to the the `assets` array in the `apps` section of _.angular-cli.json_:
++
+[source, json]
+----
+"assets": [
+  "assets",
+  "data",
+  "favicon.ico"
+],
+----
+
+. Restart development web server with kbd:[Ctrl+C] and run `ng serve` so the changes in _.angular-cli.json_ are applied.
+
+. Check to see that the the json files from the data dir are recognizable by the dev web server. Enter the following command in the browser and you should see the data:
++
+[source, sh]
+----
+http://localhost:4200/data/products/all.json
+----
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add static data"
+----
+
+== Implementing ProductService
+
+. Generate the `ProductService` with Angular CLI in the folder shared/services:
++
+[source, shell]
+----
+ng g s shared/services/product -spec false
+----
+The specified path is relative to the _src/app_ directory.
+
+. To make the import statement shorter for this service, create the file _index.ts_ in the _src/app/shared/services_ folder and add following code there:
++
+[source, ts]
+----
+export { Product, ProductService } from './product.service';
+----
+
+. Replace content of the _product.service.ts_ file with the following code:
++
+[source, ts]
+----
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+
+@Injectable()
+export class ProductService {
+
+  constructor(private http: HttpClient) {}
+
+  getAll(): Observable<Product[]> {
+    return this.http.get<Product[]>('/data/products/all.json');
+  }
+}
+
+export interface Product {
+  description: string;
+  featured: boolean;
+  imageUrl: string;
+  price: number;
+  title: string;
+  id: string;
+}
+----
+
+. Add `ProductService` to the list of `AppModule` providers in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { ProductService } from './shared/services'; // <1>
+
+@NgModule({
+  ...
+  providers: [ ProductService ], // <2>
+  ...
+})
+export class AppModule {}
+----
+<1> Since we created _src/app/shared/services/index.ts_ file we can use a shorter path to `ProductService` here
+<2> Add the provider for `ProductService`
+
+. Add `HttpClientModule` to the imports section of the `AppModule`:
++
+[source, ts]
+----
+import { HttpClientModule } from '@angular/common/http';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    ...
+    HttpClientModule
+  ],
+  ...
+})
+export class AppModule {}
+----
+
+. Just to check that the `ProductService` works, inject it into `AppComponent`, invoke `getAll()` method, and print result of the request into the console:
++
+[source, ts]
+----
+import { ProductService } from './shared/services';
+
+...
+export class AppComponent {
+  constructor(productService: ProductService) {
+    productService.getAll()                            
+        .subscribe(products => console.log(products)); 
+  }
+}
+----
++
+Launch the web server and open the application in a web browser. You should see an array of product objects printed in the browser console.
++
+Now remove `ProductService` from `AppComponent` - we'll use it in different components later.
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add initial version of ProductService"
+----
+
+== Adding the Home view
+
+=== Fetching products from the server, implementing grid list layout
+. Generate a new `HomeComponent` using Angular CLI:
++
+[source, shell]
+----
+ng g component home --spec false
+----
++
+.Console output
+image::fig_05.png[Generate component command output,460,role="thumb"]
+
+. Create _index.ts_ file inside _src/app/home_ directory with the following code:
++
+[source, ts]
+----
+export * from './home.component';
+----
++
+Simplify the import statement for `HomeComponent` in _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { HomeComponent } from './home'; // instead of './home/home.component'
+----
+
+. Add `HomeComponent` to the `AppComponent`{nbsp}'s template:
++
+[source, html]
+----
+<md-toolbar>
+  <!-- Toolbar's content here... -->
+</md-toolbar>
+
+<ngs-home></ngs-home> <!--1-->
+----
+<1> You need to add this line
++
+Now you should see home component rendered in the browser:
++
+.Home component rendered on the page
+image::fig_06.png[Home component rendered on the page,425,role="thumb"]
+
+. Replace content of the _src/app/home/home.component.ts_ file with the following code:
++
+[source, ts]
+----
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Product, ProductService } from '../shared/services';
+
+@Component({
+  selector: 'ngs-home',
+  styleUrls: [ './home.component.scss' ],
+  templateUrl: './home.component.html'
+})
+export class HomeComponent {
+  products: Observable<Product[]>;
+  constructor(private productService: ProductService) {
+    this.products = this.productService.getAll();
+  }
+}
+----
+
+. Replace content of the _src/app/home/home.component.html_ file with the following:
++
+[source, html]
+----
+<div class="grid-list-container">
+  <md-grid-list cols="3" gutterSize="16">
+    <md-grid-tile *ngFor="let p of products | async">
+      {{ p.title }}
+    </md-grid-tile>
+  </md-grid-list>
+</div>
+----
+
+. Add `MdGridListModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+import { MdToolbarModule, MdGridListModule } from '@angular/material';
+
+@NgModule({
+  declarations: [ AppComponent ],
+  imports: [
+    ...
+    MdGridListModule
+  ] ...
+})
+export class AppModule {}
+----
+
+. Add the following styles to _src/app/home/home.component.scss_:
++
+[source, scss]
+----
+:host {
+  display: block;
+  background: #f3f3f3;
+}
+
+.grid-list-container {
+  padding: 16px;
+}
+----
++
+Now the page should look like this:
++
+.Grid list layout
+image::fig_07.png[Grid list layout,516,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add HomeComponent, display products in the grid list layout"
+----
+
+=== Adding product tiles
+
+. Generate a new `ProductTileComponent` using Angular CLI:
++
+[source, shell]
+----
+ng g c home/product-tile --spec false
+----
++
+In index.ts, re-export `ProductTileComponent` from the _src/app/home/index.ts_ file:
++
+[source, ts]
+----
+export * from './product-tile/product-tile.component';
+----
++
+Simplify generated import statement for the `ProductTileComponent` in the _src/app/app.module.ts_ file:
++
+[source, ts]
+----
+// Instead of this:
+// import { ProductTileComponent } from './home/product-tile/product-tile.component';
+
+// Use this:
+import { HomeComponent, ProductTileComponent } from './home';
+----
+
+. Replace content of the generated file _product-tile.component.ts_ with the following:
++
+[source, ts]
+----
+import { Component, Input } from '@angular/core';
+import { Product } from '../../shared/services';
+
+@Component({
+  selector: 'ngs-product-tile',
+  styleUrls: [ './product-tile.component.scss' ],
+  templateUrl: './product-tile.component.html'
+})
+export class ProductTileComponent {
+  @Input() product: Product;
+}
+----
+
+. Replace the content of _product-tile.component.scss_ with the following styles:
++
+[source, scss]
+----
+@import '../../../styles/palette';
+
+:host {
+  background: mat-color($ngs-background, card);
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+
+  // Children layout
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumbnail {
+  background: no-repeat 50% 50%;
+  background-size: contain;
+  height: 50%;
+  width: 50%;
+}
+
+.title {
+  color: mat-color($ngs-foreground, text);
+  font-family: $ngs-brand-font;
+  font-size: 34px; 
+}
+----
+
+. Replace the content of _product-tile.component.html_ with the following:
++
+[source, ts]
+----
+<div class="thumbnail" [ngStyle]="{'background-image': 'url(' + product.imageUrl + ')'}"></div>
+<div class="title">{{ product.title }}</div>
+----
+
+. Open _home.component.html_ file and replace data binding expression `{{ p.title }}` with the product tile component:
++
+[source, html]
+----
+<ngs-product-tile [product]="p"></ngs-product-tile>
+----
++
+Now your home page should look like this:
++
+[[figure-8]]
+.Home page with product tiles
+image::fig_08.png[Home page with product tiles,1131,role="thumb"]
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Add product tiles on the home page"
+----
+
+=== Adding category tabs
+
+. Declare `categories` array in `HomeCompoent` to list all available categories:
++
+[source, ts]
+----
+@Component({...})
+export class HomeComponent {
+  readonly categories = [
+    'all',
+    'featured',
+    'latest',
+    'sport'
+  ];
+  ...
+}
+----
+
+. Add `MdTabsModule`, `MdToolbarModule`, and `BrowserAnimationsModule` to `@NgModule`
++
+[source, typescript]
+----
+import {
+  ...
+  MdTabsModule,
+  MdToolbarModule,
+  BrowserAnimationsModule
+} from '@angular/material';
+
+@NgModule({
+ ...
+  imports: [
+   ... 
+    MdToolbarModule,
+    MdTabsModule,
+    BrowserAnimationsModule
+  ],
+----
+
+. Add `MdTabGroup` component at the very top of the home component's template. It should render individual `MdTab`{nbsp}s while iterating over the `categories` array with `*ngFor`:
++
+[source, html]
+----
+<md-tab-group>
+  <md-tab *ngFor="let c of categories" [label]="c | uppercase"></md-tab>
+</md-tab-group>
+----
+
+. Add styles for the tab group in _home.component.scss_ file:
++
+[source, scss]
+----
+@import '../../styles/palette';
+
+md-tab-group {
+  background: mat-color($ngs-background, card);
+}
+----
++
+Now the home page in a web browser should look like this:
++
+.Category tabs on the home page
+image::fig_09.png[Category tabs on the home page,933,role="thumb"]
+
+=== Making category tabs interactive
+
+. Add `getCategory()` method to the `ProductService` class:
++
+[source, ts]
+----
+@Injectable()
+export class ProductService {
+  // Rest of the class definition...
+
+  getCategory(category: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`/data/products/${category}.json`);
+  }
+}
+----
+
+. In `HomeComponent` template add event binding for the `selectedIndexChange` event so the `<md-tab-group>` looks like this:
++
+[source, ts]
+----
+<md-tab-group (selectedIndexChange)="onTabChange($event)"> <!--1-->
+----
+<1> `$event` variable carries the index number of currently activated tab.
+
+. Implement `onTabChange()` method in `HomeComponent`:
++
+[source, ts]
+----
+export class HomeComponent {
+  ...
+
+  onTabChange(tabIndex: number) {
+    const category = this.categories[tabIndex];
+    console.log(`Selected category: ${category}`);
+    this.products = this.productService.getCategory(category);
+  }
+}
+----
++
+// TODO: Add "to make sure" step.
+
+. Commit the changes to save the progress:
++
+[source, shell]
+----
+git add -A && git commit -m "Make categories tabs interactive"
+----
