@@ -65,6 +65,20 @@ import { MdToolbarModule } from '@angular/material';
 export class AppModule {}
 ----
 
+.Breaking changes in Angular Material 2.0.0-beta.11
+***********************
+Starting from Angular material 2.0.0-beta.11 the Md prefixes are deprecated. For example, instead of using MdToolbarModule, you should be using MatTabModule.
+
+Also, you should not be importing all modules from '@angular/material', but import each module from
+an individual material module. For example, instead of this:
+
+import {MdToolbarModule} from '@angular/material';
+
+do this:
+
+import {MatToolbarModule} from '@angular/material/toolbar';
+***********************
+
 . Replace the content of the generated _src/app/app.component.html_ file with the `<md-toolbar>` component:
 +
 [source, html]
