@@ -122,12 +122,12 @@
       <div class="row expiry" formGroupName="expiry">
         <div>
           <label>Expiry</label>
-          <md-select>
+          <md-select formControlName="month">
             <md-option *ngFor="let m of months" [value]="m">{{ m }}</md-option>
           </md-select>
         </div>
 
-        <md-select>
+        <md-select formControlName="year">
           <md-option *ngFor="let y of years" [value]="y">{{ y }}</md-option>
         </md-select>
 
@@ -135,6 +135,7 @@
           <input mdInput
                  required
                  type="tel"
+                 formControlName="cvv"
                  placeholder="CVV">
         </md-input-container>
       </div>

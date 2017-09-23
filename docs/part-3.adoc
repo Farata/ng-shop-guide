@@ -231,15 +231,14 @@ git add -A && git commit -m "Generate cart component, add resolver, configure ro
 +
 [source, ts]
 ----
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Product, ShoppingCartService, ShoppingCartState } from '../shared/services';
 
 @Component({
   selector: 'ngs-cart',
   styleUrls: [ './cart.component.scss' ],
-  templateUrl: './cart.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './cart.component.html'
 })
 export class CartComponent {
 
@@ -449,7 +448,9 @@ image::fig_03.png[Shopping cart state serialized in the local storage,1105,role=
 If you click on the remove button next to the product's price, the product should disappear both from the page and from the local storage. The total amount should be $0.00:
 +
 .Empty shopping cart
-image::fig_04.gif[Empty shopping cart,623,role="thumb"]
+image::fig_04.gif[Empty shopping cart,623,role="thumb
++
+Currently we don't save the quantity changes in the local storage. We'll do it in the next section.
 
 . Commit the changes to save the progress:
 +
@@ -459,6 +460,8 @@ git add -A && git commit -m "Add shopping cart UI"
 ----
 
 == Adding form support
+
+Now we want to replace the quantity field with the form, and add the functionality to save the updated quantities in the locals storage. 
 
 . Add `ReactiveFormsModule` to the imports section of the `AppModule` in the _src/app/app.module.ts_ file:
 +
@@ -502,7 +505,7 @@ function positive(control: AbstractControl): {[key: string]: boolean} {
 }
 ----
 
-. Replace constructor's body with the following code:
+. We want to recalculate the total and update the shopping cart, when the user changes the quantity. Replace constructor's body with the following code:
 +
 [source, ts]
 ----
@@ -563,7 +566,9 @@ git add -A && git commit -m "Add form support to the shopping cart page"
 
 == Adding the shopping cart icon to the toolbar
 
-. In _src/app/app.component.ts_, add the import statement for `ShoppingCartService` and inject it into `AppComponent` constructor:
+The shopping cart icon is a part of the AppComponent's toolbar, so we need to add it there.
+
+. The `ShoppingCartService` knows the total number of items in the shopping cart. In _src/app/app.component.ts_, add the import statement for `ShoppingCartService` and inject it into `AppComponent` constructor:
 +
 [source, ts]
 ----
@@ -586,25 +591,12 @@ get cartTotalQuantity(): number {
 }
 ----
 
-. In the _src/app/app.component.html_ file add following markup right before closing `</md-toolbar>` tag:
-+
-[source, html]
-----
-<a md-icon-button
-   class="ngs-badge"
-   routerLink="/cart"
-   [attr.data-badge]="cartTotalQuantity">
-  <md-icon>shopping_cart</md-icon>
-</a>
-----
-
-. Create _src/styles/_badge.scss_ file with following markup:
+. Our shopping card icon will have a little badge on top showing the number of items in the shopping cart. Let's create this badge using CSS. Create _src/styles/_badge.scss_ file with following markup:
 +
 [source, scss]
 ----
 @import './palette';
 
-// This is a simple way to implement a badge exclusively with CSS.
 .ngs-badge[data-badge] {
   position: relative;
 
@@ -623,6 +615,20 @@ get cartTotalQuantity(): number {
   }
 }
 ----
+
+. An `md-icon` can be used not only with buttons, but insides the links as well, which is convenient if you want to make the button that works as a link. In the _src/app/app.component.html_ file add following markup right before closing `</md-toolbar>` tag:
++
+[source, html]
+----
+<a md-icon-button
+   class="ngs-badge"
+   routerLink="/cart"
+   [attr.data-badge]="cartTotalQuantity">
+  <md-icon>shopping_cart</md-icon>
+</a>
+----
++
+Note that we use the `ngs-badge` style created in the previous step.
 
 . Add following import statement to the _src/styles/styles.scss_ file:
 +

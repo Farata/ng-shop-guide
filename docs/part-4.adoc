@@ -13,6 +13,12 @@
 
 == Generating CheckoutComponent and configuring routing
 
+We want to generate the UI for the checkout view that will contain a form with billing and payment information. Clicking on the button PLACE ORDER will just print the form data on the browser's console. 
+
+.Checkout form
+image::fig_01.png[Checkout form,1034,role="thumb"]
+
+
 . Generate the component to represent the checkout page:
 +
 [source, shell]
@@ -56,12 +62,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class CheckoutComponent {
 
-  readonly months: string[] = [
+  readonly months: string[] = [  // used in CC month dropdown
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
-  readonly years: number[];
+  readonly years: number[];  // used in CC year dropdown
 
   readonly formModel: FormGroup;
 
@@ -93,6 +99,7 @@ export class CheckoutComponent {
     });
   }
 
+  // A helper function used in the template to display errors
   hasError(errorCode: string, path: string[]) {
     return this.formModel.get(path).touched
         && this.formModel.hasError(errorCode, path);
@@ -197,7 +204,7 @@ export class CheckoutComponent {
                    placeholder="Country"
                    formControlName="country">
           <md-option value="US">United States</md-option>
-          <md-option calue="CA">Canada</md-option>
+          <md-option value="CA">Canada</md-option>
         </md-select>
       </div>
     </div>
@@ -232,12 +239,12 @@ export class CheckoutComponent {
       <div class="row expiry" formGroupName="expiry">
         <div>
           <label>Expiry</label>
-          <md-select>
+          <md-select formControlName="month">
             <md-option *ngFor="let m of months" [value]="m">{{ m }}</md-option>
           </md-select>
         </div>
 
-        <md-select>
+        <md-select formControlName="year">
           <md-option *ngFor="let y of years" [value]="y">{{ y }}</md-option>
         </md-select>
 
@@ -245,6 +252,7 @@ export class CheckoutComponent {
           <input mdInput
                  required
                  type="tel"
+                 formControlName="cvv"
                  placeholder="CVV">
         </md-input-container>
       </div>
@@ -260,6 +268,8 @@ export class CheckoutComponent {
   </section>
 </form>
 ----
++
+*TIP:* If you want the PLACE ORDER button to be disabled if the form is not valid,  add `[disabled]=formModel.invalid` to the button.
 
 . Add the following content to _src/app/checkout/checkout.component.scss_:
 +
@@ -349,7 +359,9 @@ md-hint.error {
 .Checkout form
 image::fig_01.png[Checkout form,1034,role="thumb"]
 
-. In _src/app/cart/cart.component.html_ add `routerLink` directive to the checkout button so it'll look like this:
+. Enter some values in the form and click on the PLACE ORDER button. The browser will print the content of the form model on the console.
+
+. Finally, we need to add a link to the checkout form in the shopping cart. In _src/app/cart/cart.component.html_ add `routerLink` directive to the checkout button so it'll look like this:
 +
 [source, html]
 ----

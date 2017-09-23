@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Product, ShoppingCartService, ShoppingCartState } from '../shared/services';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
@@ -7,8 +7,7 @@ import 'rxjs/add/operator/debounceTime';
 @Component({
   selector: 'ngs-cart',
   styleUrls: [ './cart.component.scss' ],
-  templateUrl: './cart.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './cart.component.html'
 })
 export class CartComponent {
 
