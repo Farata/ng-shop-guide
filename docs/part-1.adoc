@@ -13,6 +13,9 @@
 
 == Creating a new project with Angular Material support
 
+During this workshop we'll build the ngShop app that will look like this:
+https://ngshop-3bcab.firebaseapp.com/categories/all
+
 This is the first part of the instructions for building the ngShop app from scratch. You have to have Node 8.1 or newer (see nodejs.org/downloads) and Angular CLI 1.4 or newer installed.
 
 . Generate a new project:
@@ -69,7 +72,7 @@ export class AppModule {}
 ***********************
 Starting from Angular material 2.0.0-beta.11 the Md prefixes are deprecated. For example, instead of using MdToolbarModule, you should be using MatTabModule.
 
-Also, you should not be importing all modules from '@angular/material', but import each module froman individual material module. For example, instead of this:
+Also, you should not be importing all modules from '@angular/material', but import each module from an individual material module. For example, instead of this:
 
 import {MdToolbarModule} from '@angular/material';
 
@@ -88,7 +91,7 @@ To upgrade an existing Angular Material project, perform the following steps:
 "@angular/cdk": "2.0.0-beta.11",
 ----
 
-2. Used this tool to auto-upgrade components, templates, and CSS: https://www.npmjs.com/package/angular-material-prefix-updater
+2. Use this tool to auto-upgrade components, templates, and CSS: https://www.npmjs.com/package/angular-material-prefix-updater
 
 3. Add the following provider to your app module:
 [code, js]
@@ -126,7 +129,7 @@ git add -A && git commit -m "Add Angular Material package"
 
 . Move _src/styles.scss_ file to the just created directory:
 
-. Create two empty files __palette.scss_ and _theme.scss_ in the _src/styles_ folder. 
+. Create two empty files __palette.scss_  and _theme.scss_ in the _src/styles_ folder 
 
 . Copy/paste the styles below into the __palette.scss_ file:
 +
@@ -207,7 +210,7 @@ image::fig_02.png[Toolbar with cyan background,417,role="thumb"]
 +
 Now remove `color="primary"` because we want the toolbar background color to be white. The next three steps will finalize the look and feel of our toolbar.
 
-. Copy _ngshop-logo.svg_ image from the handouts to the _src/assets_ folder:
+. Copy _ngshop-logo.svg_ image from the handouts to the _ngshop-part1-completed/src/assets_ folder:
 
 . Replace content of the _src/app/app.component.scss_ files with following:
 +
@@ -264,7 +267,7 @@ git add -A && git commit -m "Add custom Angular Material theme and complete the 
 
 == Adding the static products data
 
-. Copy the _data_ directory from the part-1 project to the _src_ directory of your ng-shop project:
+. Copy the _data_ directory from the _ngshop-part1-completed/src_ dir to the _src_ directory of your ng-shop project:
 
 . Add `"data"` to the the `assets` array in the `apps` section of _.angular-cli.json_:
 +
