@@ -210,7 +210,7 @@ image::fig_02.png[Toolbar with cyan background,417,role="thumb"]
 +
 Now remove `color="primary"` because we want the toolbar background color to be white. The next three steps will finalize the look and feel of our toolbar.
 
-. Copy _ngshop-logo.svg_ image from the handouts to the _ngshop-part1-completed/src/assets_ folder:
+. Copy _ngshop-logo.svg_ image from the _ngshop-part1-completed/src/assets_ folder to the _assets_ folder of your project:
 
 . Replace content of the _src/app/app.component.scss_ files with following:
 +
